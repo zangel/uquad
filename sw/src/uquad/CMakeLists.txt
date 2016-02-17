@@ -1,0 +1,32 @@
+set(EXTERN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../extern)
+
+include_directories(${EXTERN_DIR}/jpeg)
+include_directories(${EXTERN_DIR}/eigen-3.2.2)
+include_directories(${EXTERN_DIR}/zlib)
+include_directories(${EXTERN_DIR}/boost_1_59_0)
+include_directories(${EXTERN_DIR}/libusb)
+include_directories(../../../fw)
+add_definitions(-DHAS_JPG)
+add_definitions(-DBOOST_SIGNALS_NO_DEPRECATION_WARNING)
+add_definitions(-DBOOST_CHRONO_VERSION=2)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+
+if(UQUAD_PLATFORM_ANDROID)
+	link_directories(${EXTERN_DIR}/android/libhardware/lib)
+	link_directories(${EXTERN_DIR}/android/omxcore/lib)
+	link_directories(${EXTERN_DIR}/android/core/lib)
+endif()
+
+add_subdirectory(base)
+add_subdirectory(math)
+add_subdirectory(utility)
+add_subdirectory(hal)
+add_subdirectory(media)
+add_subdirectory(comm)
+add_subdirectory(cv)
+add_subdirectory(control)
+
+if(BUILD_APPS)
+	add_subdirectory(apps)
+endif()

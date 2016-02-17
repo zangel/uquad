@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9059" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="LVR-xR-90U">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9049"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--Remote-->
+        <scene sceneID="ZWO-w6-r8D">
+            <objects>
+                <viewController storyboardIdentifier="Remote" title="Remote" id="DVE-91-2UB" customClass="UQRRemoteViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="5hP-n3-MIP"/>
+                        <viewControllerLayoutGuide type="bottom" id="LlI-dE-vuV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="fWH-eO-yyb">
+                        <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <activityIndicatorView opaque="NO" alpha="0.5" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="L4u-LH-g9C">
+                                <rect key="frame" x="350" y="188" width="37" height="37"/>
+                            </activityIndicatorView>
+                            <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yzm-yr-613">
+                                <rect key="frame" x="20" y="28" width="48" height="48"/>
+                                <state key="normal" image="BtnBack"/>
+                                <state key="highlighted" image="BtnBackHighlight"/>
+                                <connections>
+                                    <action selector="navigateBack:" destination="DVE-91-2UB" eventType="touchUpInside" id="Rh7-Pi-ox4"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.23529411759999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="yzm-yr-613" firstAttribute="top" secondItem="5hP-n3-MIP" secondAttribute="bottom" constant="8" id="2P0-YJ-ags"/>
+                            <constraint firstItem="L4u-LH-g9C" firstAttribute="centerX" secondItem="fWH-eO-yyb" secondAttribute="centerX" id="9lI-GW-mak"/>
+                            <constraint firstItem="L4u-LH-g9C" firstAttribute="centerY" secondItem="fWH-eO-yyb" secondAttribute="centerY" id="YMd-JT-c7S"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="yzm-yr-613" secondAttribute="leading" id="omE-Yk-Z7z"/>
+                        </constraints>
+                    </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
+                    <connections>
+                        <outlet property="connectActivity" destination="L4u-LH-g9C" id="132-Nx-wwq"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ouS-Ka-OpC" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3017" y="1203"/>
+        </scene>
+        <!--Main View Controller-->
+        <scene sceneID="fGb-BV-EIv">
+            <objects>
+                <viewController id="LVR-xR-90U" customClass="UQRMainViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="tfu-sX-sEl"/>
+                        <viewControllerLayoutGuide type="bottom" id="Uvy-BE-Qub"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="PSR-yE-beW">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" misplaced="YES" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="OgS-fi-WJ5">
+                                <rect key="frame" x="52" y="96" width="310" height="100"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lNh-A2-RhZ">
+                                        <rect key="frame" x="0.0" y="0.0" width="75" height="100"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="75" id="0ow-ci-1QM"/>
+                                            <constraint firstAttribute="height" constant="100" id="r3H-eF-r4j"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <inset key="titleEdgeInsets" minX="-75" minY="80" maxX="0.0" maxY="0.0"/>
+                                        <state key="normal" title="Info" image="BtnInfo"/>
+                                        <state key="highlighted" image="BtnInfoHighlight"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BYL-dW-g60">
+                                        <rect key="frame" x="118" y="0.0" width="75" height="100"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="75" id="8vo-fg-xFb"/>
+                                            <constraint firstAttribute="height" constant="100" id="wV4-F7-lPJ"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <inset key="titleEdgeInsets" minX="-75" minY="80" maxX="0.0" maxY="0.0"/>
+                                        <state key="normal" title="Settings" image="BtnSettings"/>
+                                        <state key="highlighted" image="BtnSettingsHighlight"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="top" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DFg-B7-Ued">
+                                        <rect key="frame" x="235" y="0.0" width="75" height="100"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="100" id="8WM-QO-rLD"/>
+                                            <constraint firstAttribute="width" constant="75" id="QfV-1u-KFw"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <inset key="titleEdgeInsets" minX="-75" minY="80" maxX="0.0" maxY="0.0"/>
+                                        <state key="normal" title="Remote" image="BtnRemote"/>
+                                        <state key="highlighted" image="BtnRemoteHighlight"/>
+                                        <connections>
+                                            <action selector="showRemoteViewController:" destination="LVR-xR-90U" eventType="touchUpInside" id="XGc-ur-t4d"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.23529411759999999" green="0.23529411759999999" blue="0.23529411759999999" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="OgS-fi-WJ5" firstAttribute="leading" secondItem="PSR-yE-beW" secondAttribute="leadingMargin" constant="32" id="Vr6-j3-dlC"/>
+                            <constraint firstItem="OgS-fi-WJ5" firstAttribute="top" secondItem="tfu-sX-sEl" secondAttribute="bottom" constant="32" id="mSH-2v-QQ6"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="OgS-fi-WJ5" secondAttribute="trailing" constant="32" id="r1P-o4-Gdm"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="JfC-q3-2l4"/>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="pdV-by-pVr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2950" y="565"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="BtnBack" width="48" height="48"/>
+        <image name="BtnBackHighlight" width="48" height="48"/>
+        <image name="BtnInfo" width="75" height="75"/>
+        <image name="BtnInfoHighlight" width="75" height="75"/>
+        <image name="BtnRemote" width="75" height="75"/>
+        <image name="BtnRemoteHighlight" width="75" height="75"/>
+        <image name="BtnSettings" width="75" height="75"/>
+        <image name="BtnSettingsHighlight" width="75" height="75"/>
+    </resources>
+</document>

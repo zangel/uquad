@@ -1,0 +1,8 @@
+#ifndef UQUAD_MATH_CONFIG_H
+#define UQUAD_MATH_CONFIG_H
+
+#include "../Config.h"
+
+#define UQUAD_MATH_FIXED_POINT_TRIGONO_USE_FPU
+
+#endif //UQUAD_MATH_CONFIG_H

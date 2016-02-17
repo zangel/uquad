@@ -1,0 +1,441 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		78504C5F1BE864300076454E /* UQRRemoteViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 78504C5E1BE864300076454E /* UQRRemoteViewController.mm */; };
+		786F14241BE833E800E61021 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 786F14231BE833E800E61021 /* main.m */; };
+		786F142D1BE833E800E61021 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 786F142B1BE833E800E61021 /* Main.storyboard */; };
+		786F142F1BE833E800E61021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 786F142E1BE833E800E61021 /* Assets.xcassets */; };
+		786F14471BE8343300E61021 /* UQRAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 786F14401BE8343300E61021 /* UQRAppDelegate.mm */; };
+		786F14481BE8343300E61021 /* UQRClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 786F14411BE8343300E61021 /* UQRClient.cpp */; };
+		786F14491BE8343300E61021 /* UQRMainViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 786F14441BE8343300E61021 /* UQRMainViewController.mm */; };
+		786F145A1BE835A300E61021 /* libbase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F144B1BE835A300E61021 /* libbase.a */; };
+		786F145B1BE835A300E61021 /* libboost_chrono.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F144C1BE835A300E61021 /* libboost_chrono.a */; };
+		786F145C1BE835A300E61021 /* libboost_context.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F144D1BE835A300E61021 /* libboost_context.a */; };
+		786F145D1BE835A300E61021 /* libboost_coroutine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F144E1BE835A300E61021 /* libboost_coroutine.a */; };
+		786F145E1BE835A300E61021 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F144F1BE835A300E61021 /* libboost_filesystem.a */; };
+		786F145F1BE835A300E61021 /* libboost_signals.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14501BE835A300E61021 /* libboost_signals.a */; };
+		786F14601BE835A300E61021 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14511BE835A300E61021 /* libboost_system.a */; };
+		786F14611BE835A300E61021 /* libboost_thread.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14521BE835A300E61021 /* libboost_thread.a */; };
+		786F14621BE835A300E61021 /* libcomm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14531BE835A300E61021 /* libcomm.a */; };
+		786F14631BE835A300E61021 /* libhal.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14541BE835A300E61021 /* libhal.a */; };
+		786F14641BE835A300E61021 /* libjpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14551BE835A300E61021 /* libjpeg.a */; };
+		786F14651BE835A300E61021 /* libmath.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14561BE835A300E61021 /* libmath.a */; };
+		786F14661BE835A300E61021 /* libmedia.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14571BE835A300E61021 /* libmedia.a */; };
+		786F14671BE835A300E61021 /* libutility.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14581BE835A300E61021 /* libutility.a */; };
+		786F14681BE835A300E61021 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14591BE835A300E61021 /* libz.a */; };
+		786F146C1BE835B100E61021 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F14691BE835B100E61021 /* CoreMedia.framework */; };
+		786F146D1BE835B100E61021 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F146A1BE835B100E61021 /* CoreVideo.framework */; };
+		786F146E1BE835B100E61021 /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 786F146B1BE835B100E61021 /* VideoToolbox.framework */; };
+		78F8403C1BE9A87600095610 /* UQRRemoteVideoShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 78F8403B1BE9A87600095610 /* UQRRemoteVideoShaders.metal */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		78504C5D1BE864300076454E /* UQRRemoteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UQRRemoteViewController.h; sourceTree = "<group>"; };
+		78504C5E1BE864300076454E /* UQRRemoteViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UQRRemoteViewController.mm; sourceTree = "<group>"; };
+		78504C601BE9859B0076454E /* UQRViewControllerDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UQRViewControllerDelegate.h; sourceTree = "<group>"; };
+		786F141F1BE833E800E61021 /* uQuadRemote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uQuadRemote.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		786F14231BE833E800E61021 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		786F142C1BE833E800E61021 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		786F142E1BE833E800E61021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		786F14331BE833E800E61021 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		786F143F1BE8343300E61021 /* UQRAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UQRAppDelegate.h; sourceTree = "<group>"; };
+		786F14401BE8343300E61021 /* UQRAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UQRAppDelegate.mm; sourceTree = "<group>"; };
+		786F14411BE8343300E61021 /* UQRClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UQRClient.cpp; sourceTree = "<group>"; };
+		786F14421BE8343300E61021 /* UQRClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UQRClient.h; sourceTree = "<group>"; };
+		786F14431BE8343300E61021 /* UQRMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UQRMainViewController.h; sourceTree = "<group>"; };
+		786F14441BE8343300E61021 /* UQRMainViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = UQRMainViewController.mm; sourceTree = "<group>"; };
+		786F144B1BE835A300E61021 /* libbase.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libbase.a; path = "../../../../../build/iOS/uquad/base/Debug-iphoneos/libbase.a"; sourceTree = "<group>"; };
+		786F144C1BE835A300E61021 /* libboost_chrono.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_chrono.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_chrono.a"; sourceTree = "<group>"; };
+		786F144D1BE835A300E61021 /* libboost_context.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_context.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_context.a"; sourceTree = "<group>"; };
+		786F144E1BE835A300E61021 /* libboost_coroutine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_coroutine.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_coroutine.a"; sourceTree = "<group>"; };
+		786F144F1BE835A300E61021 /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_filesystem.a"; sourceTree = "<group>"; };
+		786F14501BE835A300E61021 /* libboost_signals.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_signals.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_signals.a"; sourceTree = "<group>"; };
+		786F14511BE835A300E61021 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_system.a"; sourceTree = "<group>"; };
+		786F14521BE835A300E61021 /* libboost_thread.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_thread.a; path = "../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos/libboost_thread.a"; sourceTree = "<group>"; };
+		786F14531BE835A300E61021 /* libcomm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcomm.a; path = "../../../../../build/iOS/uquad/comm/Debug-iphoneos/libcomm.a"; sourceTree = "<group>"; };
+		786F14541BE835A300E61021 /* libhal.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libhal.a; path = "../../../../../build/iOS/uquad/hal/Debug-iphoneos/libhal.a"; sourceTree = "<group>"; };
+		786F14551BE835A300E61021 /* libjpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjpeg.a; path = "../../../../../build/iOS/extern/jpeg/Debug-iphoneos/libjpeg.a"; sourceTree = "<group>"; };
+		786F14561BE835A300E61021 /* libmath.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmath.a; path = "../../../../../build/iOS/uquad/math/Debug-iphoneos/libmath.a"; sourceTree = "<group>"; };
+		786F14571BE835A300E61021 /* libmedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmedia.a; path = "../../../../../build/iOS/uquad/media/Debug-iphoneos/libmedia.a"; sourceTree = "<group>"; };
+		786F14581BE835A300E61021 /* libutility.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libutility.a; path = "../../../../../build/iOS/uquad/utility/Debug-iphoneos/libutility.a"; sourceTree = "<group>"; };
+		786F14591BE835A300E61021 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = "../../../../../build/iOS/extern/zlib/Debug-iphoneos/libz.a"; sourceTree = "<group>"; };
+		786F14691BE835B100E61021 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		786F146A1BE835B100E61021 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		786F146B1BE835B100E61021 /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
+		78F8403B1BE9A87600095610 /* UQRRemoteVideoShaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = UQRRemoteVideoShaders.metal; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		786F141C1BE833E800E61021 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				786F146C1BE835B100E61021 /* CoreMedia.framework in Frameworks */,
+				786F146D1BE835B100E61021 /* CoreVideo.framework in Frameworks */,
+				786F146E1BE835B100E61021 /* VideoToolbox.framework in Frameworks */,
+				786F145A1BE835A300E61021 /* libbase.a in Frameworks */,
+				786F145B1BE835A300E61021 /* libboost_chrono.a in Frameworks */,
+				786F145C1BE835A300E61021 /* libboost_context.a in Frameworks */,
+				786F145D1BE835A300E61021 /* libboost_coroutine.a in Frameworks */,
+				786F145E1BE835A300E61021 /* libboost_filesystem.a in Frameworks */,
+				786F145F1BE835A300E61021 /* libboost_signals.a in Frameworks */,
+				786F14601BE835A300E61021 /* libboost_system.a in Frameworks */,
+				786F14611BE835A300E61021 /* libboost_thread.a in Frameworks */,
+				786F14621BE835A300E61021 /* libcomm.a in Frameworks */,
+				786F14631BE835A300E61021 /* libhal.a in Frameworks */,
+				786F14641BE835A300E61021 /* libjpeg.a in Frameworks */,
+				786F14651BE835A300E61021 /* libmath.a in Frameworks */,
+				786F14661BE835A300E61021 /* libmedia.a in Frameworks */,
+				786F14671BE835A300E61021 /* libutility.a in Frameworks */,
+				786F14681BE835A300E61021 /* libz.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		786F14161BE833E800E61021 = {
+			isa = PBXGroup;
+			children = (
+				786F14691BE835B100E61021 /* CoreMedia.framework */,
+				786F146A1BE835B100E61021 /* CoreVideo.framework */,
+				786F146B1BE835B100E61021 /* VideoToolbox.framework */,
+				786F144B1BE835A300E61021 /* libbase.a */,
+				786F144C1BE835A300E61021 /* libboost_chrono.a */,
+				786F144D1BE835A300E61021 /* libboost_context.a */,
+				786F144E1BE835A300E61021 /* libboost_coroutine.a */,
+				786F144F1BE835A300E61021 /* libboost_filesystem.a */,
+				786F14501BE835A300E61021 /* libboost_signals.a */,
+				786F14511BE835A300E61021 /* libboost_system.a */,
+				786F14521BE835A300E61021 /* libboost_thread.a */,
+				786F14531BE835A300E61021 /* libcomm.a */,
+				786F14541BE835A300E61021 /* libhal.a */,
+				786F14551BE835A300E61021 /* libjpeg.a */,
+				786F14561BE835A300E61021 /* libmath.a */,
+				786F14571BE835A300E61021 /* libmedia.a */,
+				786F14581BE835A300E61021 /* libutility.a */,
+				786F14591BE835A300E61021 /* libz.a */,
+				786F14211BE833E800E61021 /* uQuadRemote */,
+				786F14201BE833E800E61021 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		786F14201BE833E800E61021 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				786F141F1BE833E800E61021 /* uQuadRemote.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		786F14211BE833E800E61021 /* uQuadRemote */ = {
+			isa = PBXGroup;
+			children = (
+				786F143F1BE8343300E61021 /* UQRAppDelegate.h */,
+				786F14401BE8343300E61021 /* UQRAppDelegate.mm */,
+				786F14411BE8343300E61021 /* UQRClient.cpp */,
+				786F14421BE8343300E61021 /* UQRClient.h */,
+				78504C601BE9859B0076454E /* UQRViewControllerDelegate.h */,
+				786F14431BE8343300E61021 /* UQRMainViewController.h */,
+				786F14441BE8343300E61021 /* UQRMainViewController.mm */,
+				78504C5D1BE864300076454E /* UQRRemoteViewController.h */,
+				78504C5E1BE864300076454E /* UQRRemoteViewController.mm */,
+				78F8403B1BE9A87600095610 /* UQRRemoteVideoShaders.metal */,
+				786F142B1BE833E800E61021 /* Main.storyboard */,
+				786F142E1BE833E800E61021 /* Assets.xcassets */,
+				786F14331BE833E800E61021 /* Info.plist */,
+				786F14221BE833E800E61021 /* Supporting Files */,
+			);
+			path = uQuadRemote;
+			sourceTree = "<group>";
+		};
+		786F14221BE833E800E61021 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				786F14231BE833E800E61021 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		786F141E1BE833E800E61021 /* uQuadRemote */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 786F14361BE833E800E61021 /* Build configuration list for PBXNativeTarget "uQuadRemote" */;
+			buildPhases = (
+				786F141B1BE833E800E61021 /* Sources */,
+				786F141C1BE833E800E61021 /* Frameworks */,
+				786F141D1BE833E800E61021 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = uQuadRemote;
+			productName = uQuadRemote;
+			productReference = 786F141F1BE833E800E61021 /* uQuadRemote.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		786F14171BE833E800E61021 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = uQuad;
+				TargetAttributes = {
+					786F141E1BE833E800E61021 = {
+						CreatedOnToolsVersion = 7.1;
+						DevelopmentTeam = 5R4DDCP37G;
+					};
+				};
+			};
+			buildConfigurationList = 786F141A1BE833E800E61021 /* Build configuration list for PBXProject "uQuadRemote" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 786F14161BE833E800E61021;
+			productRefGroup = 786F14201BE833E800E61021 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				786F141E1BE833E800E61021 /* uQuadRemote */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		786F141D1BE833E800E61021 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				786F142F1BE833E800E61021 /* Assets.xcassets in Resources */,
+				786F142D1BE833E800E61021 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		786F141B1BE833E800E61021 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				786F14491BE8343300E61021 /* UQRMainViewController.mm in Sources */,
+				786F14481BE8343300E61021 /* UQRClient.cpp in Sources */,
+				78F8403C1BE9A87600095610 /* UQRRemoteVideoShaders.metal in Sources */,
+				78504C5F1BE864300076454E /* UQRRemoteViewController.mm in Sources */,
+				786F14241BE833E800E61021 /* main.m in Sources */,
+				786F14471BE8343300E61021 /* UQRAppDelegate.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		786F142B1BE833E800E61021 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				786F142C1BE833E800E61021 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		786F14341BE833E800E61021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		786F14351BE833E800E61021 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		786F14371BE833E800E61021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				HEADER_SEARCH_PATHS = (
+					"../../../../extern/eigen-3.2.2",
+					../../../../extern/boost_1_59_0,
+					../../../..,
+				);
+				INFOPLIST_FILE = uQuadRemote/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"../../../../../build/iOS/uquad/comm/Debug-iphoneos",
+					"../../../../../build/iOS/uquad/media/Debug-iphoneos",
+					"../../../../../build/iOS/uquad/hal/Debug-iphoneos",
+					"../../../../../build/iOS/uquad/base/Debug-iphoneos",
+					"../../../../../build/iOS/uquad/utility/Debug-iphoneos",
+					"../../../../../build/iOS/uquad/math/Debug-iphoneos",
+					"../../../../../build/iOS/uquad/base/Debug-iphoneos",
+					"../../../../../build/iOS/extern/boost_1_59_0/Debug-iphoneos",
+					"../../../../../build/iOS/extern/jpeg/Debug-iphoneos",
+					"../../../../../build/iOS/extern/zlib/Debug-iphoneos",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wno-error=c++11-narrowing",
+					"-fvisibility=hidden",
+					"-fvisibility-inlines-hidden",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.uquad.uQuadRemote;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = arm64;
+			};
+			name = Debug;
+		};
+		786F14381BE833E800E61021 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				HEADER_SEARCH_PATHS = (
+					"../../../../extern/eigen-3.2.2",
+					../../../../extern/boost_1_59_0,
+					../../../..,
+				);
+				INFOPLIST_FILE = uQuadRemote/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"../../../../../build/iOS/uquad/comm/Release-iphoneos",
+					"../../../../../build/iOS/uquad/media/Release-iphoneos",
+					"../../../../../build/iOS/uquad/hal/Release-iphoneos",
+					"../../../../../build/iOS/uquad/base/Release-iphoneos",
+					"../../../../../build/iOS/uquad/utility/Release-iphoneos",
+					"../../../../../build/iOS/uquad/math/Release-iphoneos",
+					"../../../../../build/iOS/uquad/base/Release-iphoneos",
+					"../../../../../build/iOS/extern/boost_1_59_0/Release-iphoneos",
+					"../../../../../build/iOS/extern/jpeg/Release-iphoneos",
+					"../../../../../build/iOS/extern/zlib/Release-iphoneos",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-Wno-error=c++11-narrowing",
+					"-fvisibility=hidden",
+					"-fvisibility-inlines-hidden",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.uquad.uQuadRemote;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALID_ARCHS = arm64;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		786F141A1BE833E800E61021 /* Build configuration list for PBXProject "uQuadRemote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				786F14341BE833E800E61021 /* Debug */,
+				786F14351BE833E800E61021 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		786F14361BE833E800E61021 /* Build configuration list for PBXNativeTarget "uQuadRemote" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				786F14371BE833E800E61021 /* Debug */,
+				786F14381BE833E800E61021 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 786F14171BE833E800E61021 /* Project object */;
+}

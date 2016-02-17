@@ -1,0 +1,20 @@
+ build/default/production/comm.d  \
+ build/default/production/comm.p1:  \
+ comm.c  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_common.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_ch9.h  \
+motors.h  \
+leds.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_hal_pic18.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_device_generic.h  \
+config.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_device.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_hal.h  \
+comm.h  \
+system.h  \
+sensors.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/usb_config.h  \
+/Users/zangel/microchip/mla/v2014_07_22/framework/usb/system_config.h  \
+uquad_device_types.h  \
+./system.h 

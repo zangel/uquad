@@ -1,0 +1,23 @@
+add_subdirectory(boost_1_59_0)
+add_subdirectory(jpeg)
+add_subdirectory(zlib)
+if(NOT UQUAD_PLATFORM_IOS)
+	if(UQUAD_PLATFORM_MAC)
+#		add_subdirectory(x264)
+#		add_subdirectory(ffmpeg-2.1.3)
+	else()
+		add_subdirectory(libusb)
+	endif()
+endif()
+
+add_subdirectory(fast)
+
+if(OpenCV_FOUND)
+	add_subdirectory(vikit)
+	add_subdirectory(svo)
+endif()
+
+add_subdirectory(CLAPACK)
+add_subdirectory(libcvd)
+add_subdirectory(agast)
+add_subdirectory(ptam)
