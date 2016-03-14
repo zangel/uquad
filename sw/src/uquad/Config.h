@@ -12,6 +12,9 @@
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics.hpp>
+#include <boost/accumulators/statistics/rolling_window.hpp>
+#include <boost/accumulators/statistics/rolling_variance.hpp>
+#include <boost/accumulators/statistics/rolling_mean.hpp>
 
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/thread.hpp>
@@ -41,6 +44,7 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/atomic.hpp>
+#include <boost/dynamic_bitset.hpp>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>

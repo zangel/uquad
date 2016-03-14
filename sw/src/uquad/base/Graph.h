@@ -36,23 +36,20 @@ namespace base
             ~Node();
             
             inline intrusive_ptr<Graph> graph() const { return intrusive_ptr<Graph>(m_Graph); }
-            
-            system::error_code addInputPort(intrusive_ptr<Port> p);
-            system::error_code addOutputPort(intrusive_ptr<Port> p);
-            
-            inline std::vector< intrusive_ptr<Port> > const& inputPorts() const { return m_InputPorts; }
-            inline std::vector< intrusive_ptr<Port> > const& outputPorts() const { return m_OutputPorts; }
-            
             inline uint32_t index() const { return m_Index; }
+            
+            virtual std::size_t numInputPorts() const = 0;
+            virtual intrusive_ptr<Port> inputPort(std::size_t index) const = 0;
+            
+            virtual std::size_t numOutputPorts() const = 0;
+            virtual intrusive_ptr<Port> outputPort(std::size_t index) const = 0;
             
         protected:
             mutable Graph *m_Graph;
             mutable handle_type m_Handle;
             mutable uint32_t m_Index;
-            std::vector< intrusive_ptr<Port> > m_InputPorts;
-            std::vector< intrusive_ptr<Port> > m_OutputPorts;
-            
         };
+        
         
         class Connection
             : public RefCounted
@@ -84,16 +81,11 @@ namespace base
             Port();
             ~Port();
             
-            inline intrusive_ptr<Node> node() const { return intrusive_ptr<Node>(m_Node); }
-            
-            virtual bool acceptsPort(intrusive_ptr<Port> input) const { return true; }
-            
-        protected:
-            mutable Node *m_Node;
+            virtual intrusive_ptr<Node> node() const = 0;
+            virtual bool acceptsPort(intrusive_ptr<Port> input) const = 0;
         };
         
         typedef function<void (intrusive_ptr<Node>)> NodeVisitPredicate;
-        
         
         Graph();
         ~Graph();

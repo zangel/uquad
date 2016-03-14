@@ -52,7 +52,9 @@
 // sampling rate and kalman filter timing eg (25, 1), (200, 8), (400, 16), (500, 20), (600, 24), (800, 32)
 // the MULTI-(B) 9-AXIS and AGM01 boards are able to sample the gyro sensor at 800Hz with Kalman filter rates depending
 // on the processor speed and number of algorithms executing in parallel.
-#define SENSORFS 			50         // int32: frequency (Hz) of gyro sensor sampling process
-#define OVERSAMPLE_RATIO 	1			// int32: accel and mag sampling and algorithms run at SENSORFS / OVERSAMPLE_RATIO Hz
+//#define SENSORFS                50         // int32: frequency (Hz) of gyro sensor sampling process
+//#define OVERSAMPLE_RATIO        1			// int32: accel and mag sampling and algorithms run at SENSORFS / OVERSAMPLE_RATIO Hz
+#define MAX_OVERSAMPLE_RATIO    32
+
 
 #endif // UQUAD_CONTROL_IKF_BUILD_H

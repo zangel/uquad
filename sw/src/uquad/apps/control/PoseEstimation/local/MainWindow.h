@@ -3,8 +3,6 @@
 
 #include "Config.h"
 #include "ui_MainWindow.h"
-#include <uquad/comm/RemoteControl.h>
-
 
 namespace ctrlpe
 {

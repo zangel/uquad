@@ -32,6 +32,11 @@ namespace base
         
         return res;
     }
+    
+    system::error_code Application::spin()
+    {
+        return m_MainRunloop.run();
+    }
 
 } //namespace base
 } //namespace uquad

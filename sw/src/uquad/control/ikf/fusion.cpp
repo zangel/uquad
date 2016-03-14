@@ -51,7 +51,7 @@ void fInit_1DOF_P_BASIC(struct SV_1DOF_P_BASIC *pthisSV, struct PressureSensor *
 	// set algorithm sampling interval (typically 25Hz) and low pass filter
 	// Note: the MPL3115 sensor only updates its output every 512ms and is therefore repeatedly oversampled at 25Hz
 	// but executing the exponenial filter at the 25Hz rate also performs an interpolation giving smoother output.
-	pthisSV->fdeltat = (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 	pthisSV->flpf = pthisSV->fdeltat / flpftimesecs;
 	if (pthisSV->flpf > 1.0F)
 	{
@@ -71,7 +71,7 @@ void fInit_1DOF_P_BASIC(struct SV_1DOF_P_BASIC *pthisSV, struct PressureSensor *
 void fInit_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pthisAccel, float flpftimesecs)
 {
 	// set algorithm sampling interval (typically 25Hz) 
-	pthisSV->fdeltat = (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 
 	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
 	if (flpftimesecs > pthisSV->fdeltat)
@@ -106,7 +106,7 @@ void fInit_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pth
 void fInit_3DOF_B_BASIC(struct SV_3DOF_B_BASIC *pthisSV, struct MagSensor *pthisMag, float flpftimesecs)
 {
 	// set algorithm sampling interval (typically 25Hz) 
-	pthisSV->fdeltat = (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 
 	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
 	if (flpftimesecs > pthisSV->fdeltat)
@@ -139,8 +139,8 @@ void fInit_3DOF_B_BASIC(struct SV_3DOF_B_BASIC *pthisSV, struct MagSensor *pthis
 void fInit_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV)
 {
 	// compute the sampling time intervals (secs)
-	pthisSV->fGyrodeltat = 1.0F / (float) SENSORFS;
-	pthisSV->fdeltat = (float) OVERSAMPLE_RATIO * pthisSV->fGyrodeltat;
+	pthisSV->fGyrodeltat = 1.0F / (float) pthisSV->iSensorFS;
+	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio * pthisSV->fGyrodeltat;
 
 	// initialize orientation estimate to flat
 	f3x3matrixAeqI(pthisSV->fR);
@@ -155,7 +155,7 @@ void fInit_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV)
 void fInit_6DOF_GB_BASIC(struct SV_6DOF_GB_BASIC *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag, float flpftimesecs)
 {
 	// set algorithm sampling interval (typically 25Hz) 
-	pthisSV->fdeltat = (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 
 	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
 	if (flpftimesecs > pthisSV->fdeltat)
@@ -191,8 +191,8 @@ void fInit_6DOF_GY_KALMAN(struct SV_6DOF_GY_KALMAN *pthisSV, struct AccelSensor 
 	int8 i;				// counter
 
 	// compute and store useful product terms to save floating point calculations later
-	pthisSV->fGyrodeltat = 1.0F / (float) SENSORFS;
-	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fGyrodeltat = 1.0F / (float) pthisSV->iSensorFS;
+	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 	pthisSV->fAlphaOver2Sq = pthisSV->fAlphaOver2 * pthisSV->fAlphaOver2;
 	pthisSV->fAlphaOver2Qwb = pthisSV->fAlphaOver2 * FQWB_6DOF_GY_KALMAN;
 	pthisSV->fAlphaOver2SqQvYQwb = pthisSV->fAlphaOver2Sq * (FQVY_6DOF_GY_KALMAN + FQWB_6DOF_GY_KALMAN);
@@ -237,10 +237,10 @@ void fInit_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSenso
 	int8 i;					// counter
 
 	// compute and store useful product terms to save floating point calculations later
-	pthisSV->fGyrodeltat = 1.0F / (float) SENSORFS;
-	pthisSV->fKalmandeltat = (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fGyrodeltat = 1.0F / (float) pthisSV->iSensorFS;
+	pthisSV->fKalmandeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 	pthisSV->fgKalmandeltat = GTOMSEC2 * pthisSV->fKalmandeltat;
-	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * (float) OVERSAMPLE_RATIO / (float) SENSORFS;
+	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
 	pthisSV->fAlphaOver2Sq = pthisSV->fAlphaOver2 * pthisSV->fAlphaOver2;
 	pthisSV->fAlphaOver2Qwb = pthisSV->fAlphaOver2 * FQWB_9DOF_GBY_KALMAN;
 	pthisSV->fAlphaOver2SqQvYQwb = pthisSV->fAlphaOver2Sq * (FQVY_9DOF_GBY_KALMAN + FQWB_9DOF_GBY_KALMAN);
@@ -443,7 +443,7 @@ void fRun_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV, struct GyroSensor *pthis
 	}
 
 	// integrate the buffered high frequency (typically 200Hz) gyro readings
-	for (j = 0; j < OVERSAMPLE_RATIO; j++)
+	for (j = 0; j < pthisSV->iOversampleRatio; j++)
 	{
 		// compute the incremental fast (typically 200Hz) rotation vector rvec (deg)
 		for (i = CHX; i <= CHZ; i++)
@@ -577,7 +577,7 @@ void fRun_6DOF_GY_KALMAN(struct SV_6DOF_GY_KALMAN *pthisSV, struct AccelSensor *
 	// compute the a priori orientation quaternion fqMi by integrating the buffered gyro measurements
 	fqMi = pthisSV->fqPl;
 	// loop over all the buffered gyroscope measurements
-	for (j = 0; j < OVERSAMPLE_RATIO; j++)
+	for (j = 0; j < pthisSV->iOversampleRatio; j++)
 	{
 		// calculate the instantaneous angular velocity (after subtracting the gyro offset) and rotation vector ftmpMi3x1
 		for (i = CHX; i <= CHZ; i++)
@@ -918,7 +918,7 @@ void fRun_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSensor
 	// compute the a priori orientation quaternion fqMi by integrating the buffered gyro measurements
 	fqMi = pthisSV->fqPl;
 	// loop over all the buffered gyroscope measurements
-	for (j = 0; j < OVERSAMPLE_RATIO; j++)
+	for (j = 0; j < pthisSV->iOversampleRatio; j++)
 	{
 		// calculate the instantaneous angular velocity (after subtracting the gyro offset) and rotation vector ftmpMi3x1
 		for (i = CHX; i <= CHZ; i++)

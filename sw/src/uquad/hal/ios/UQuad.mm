@@ -72,10 +72,10 @@ namespace ios
                 m_CMSensorsReadyFlags |= 0x01;
                 m_CMSensorsData.velocityRate = Vec3f
                 (
-                    accelerometerData.acceleration.x,
-                    accelerometerData.acceleration.y,
-                    accelerometerData.acceleration.z
-                ) * 9.80665f;
+                    -accelerometerData.acceleration.x,
+                    -accelerometerData.acceleration.y,
+                    -accelerometerData.acceleration.z
+                );
                 handleCMSensors();
             }
         ];
@@ -100,9 +100,9 @@ namespace ios
                 m_CMSensorsReadyFlags |= 0x04;
                 m_CMSensorsData.magneticField = Vec3f
                 (
-                    magnetometerData.magneticField.x,
-                    magnetometerData.magneticField.y,
-                    magnetometerData.magneticField.z
+                     -magnetometerData.magneticField.x,
+                     -magnetometerData.magneticField.y,
+                     -magnetometerData.magneticField.z
                 );
                 handleCMSensors();
             }

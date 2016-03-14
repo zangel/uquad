@@ -84,7 +84,7 @@ struct MagCalibration
 
 // function prototypes for functions in magnetic.c
 void fInitMagCalibration(struct MagCalibration *pthisMagCal, struct MagneticBuffer *pthisMagBuffer);
-void fRunMagCalibration(struct MagCalibration *pthisMagCal, struct MagneticBuffer *pthisMagBuffer, struct MagSensor* pthisMag);
+void fRunMagCalibration(struct SV_Base *pSV, struct MagCalibration *pthisMagCal, struct MagneticBuffer *pthisMagBuffer, struct MagSensor* pthisMag);
 void iUpdateMagnetometerBuffer(struct MagneticBuffer *pthisMagBuffer, struct MagSensor *pthisMag, int32 loopcounter);
 void fInvertMagCal(struct MagSensor *pthisMag, struct MagCalibration *pthisMagCal);
 void fUpdateCalibration4INV(struct MagCalibration *pthisMagCal, struct MagneticBuffer *pthisMagBuffer, struct MagSensor *pthisMag);

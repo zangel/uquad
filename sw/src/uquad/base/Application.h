@@ -27,6 +27,8 @@ namespace base
         int run(int argc, char *argv[]);
         
     protected:
+        system::error_code spin();
+        
         virtual void buildOptions(po::options_description &desc);
         virtual system::error_code prepare();
         virtual void cleanup();

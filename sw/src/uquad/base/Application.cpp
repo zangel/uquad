@@ -56,7 +56,7 @@ namespace base
         if(system::error_code pe = prepare())
             return pe.value();
         
-        system::error_code re = m_MainRunloop.run();
+        system::error_code re = spin();
         
         cleanup();
         return re.value();

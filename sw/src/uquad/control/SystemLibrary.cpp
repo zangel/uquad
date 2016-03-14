@@ -36,6 +36,6 @@ namespace control
         return intrusive_ptr<PoseEstimation>();
     }
     
-} //namespace cv
+} //namespace control
 } //namespace uquad
 

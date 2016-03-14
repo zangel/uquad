@@ -1,7 +1,11 @@
 #include "PoseEstimationView.h"
 #include "Application.h"
+#include "PoseView.h"
+#include "AccelerometerCalibrationView.h"
 #include <uquad/control/SystemLibrary.h>
 #include <uquad/math/Utils.h>
+#include <uquad/base/Serialization.h>
+#include <fstream>
 
 namespace ctrlpe
 {
@@ -24,6 +28,18 @@ namespace local
         setupUi(this);
         setupGraphs();
         Application::instance()->getRemoteControl().remoteControlDelegate() += this;
+        
+        connect(
+            m_SaveCalibration, SIGNAL(clicked()),
+            this, SLOT(onSaveCalibrationClicked())
+        );
+        
+        connect(
+            m_ResetCalibration, SIGNAL(clicked()),
+            this, SLOT(onResetCalibrationClicked())
+        );
+        updatePoseEstimationUI();
+        
     }
     
     PoseEstimationView::~PoseEstimationView()
@@ -68,31 +84,64 @@ namespace local
         m_EarthMagneticFieldEst->graph(2)->clearData();
         
         m_SensorsFirstTS = base::TimePoint::min();
+        
     }
     
     void PoseEstimationView::onRemoteControlStopped()
     {
+        m_CurrentUQuadSensorsDataPlayoutTimer.cancel();
+        m_CurrentUQuadSensorsData.reset();
+        m_UQuadSensorsData.clear();
         m_PoseEstimation->unprepare();
     }
     
-    
     void PoseEstimationView::onRemoteControlMessageReceived(intrusive_ptr<comm::Message> msg)
     {
+        if(!Application::instance()->getRemoteControl().isStarted())
+            return;
+        
         if(intrusive_ptr<common::msg::UQuadSensorsData> sensorsData = dynamic_pointer_cast<common::msg::UQuadSensorsData>(msg))
         {
             handleUQuadSensorsDataReceived(sensorsData);
         }
     }
     
-    
-    
     void PoseEstimationView::updatePoseEstimationUI()
     {
+        replotGraphs();
+        m_ResetCalibration->setEnabled(m_AccelerometerCalibrationView->isCalibrated());
+        m_SaveCalibration->setEnabled(m_AccelerometerCalibrationView->isCalibrated());
     }
+    
+    void PoseEstimationView::onResetCalibrationClicked()
+    {
+        m_AccelerometerCalibrationView->reset();
+        updatePoseEstimationUI();
+    }
+    
+    
+    void PoseEstimationView::onSaveCalibrationClicked()
+    {
+        QString calibFileName = QFileDialog::getSaveFileName(this, tr("Save calibration"), QString(), tr("All Files (*)"));
+        if(calibFileName.isEmpty())
+            return;
+        
+        std::ofstream ccFile(calibFileName.toStdString());
+        if(!ccFile.is_open())
+            return;
+        
+        {
+            base::OArchive ccArchive(ccFile);
+            ccArchive & m_AccelerometerCalibrationView->calibration();
+        }
+    }
+    
+    
     
     void PoseEstimationView::setupGraphs()
     {
         //velocity rate
+        m_VelocityRate->setPlottingHint(QCP::phForceRepaint, false);
         m_VelocityRate->addGraph();
         m_VelocityRate->graph(0)->setPen(QPen(Qt::red));
         m_VelocityRate->addGraph();
@@ -101,6 +150,7 @@ namespace local
         m_VelocityRate->graph(2)->setPen(QPen(Qt::blue));
         
         //rotation rate
+        m_RotationRate->setPlottingHint(QCP::phForceRepaint, false);
         m_RotationRate->addGraph();
         m_RotationRate->graph(0)->setPen(QPen(Qt::red));
         m_RotationRate->addGraph();
@@ -109,6 +159,7 @@ namespace local
         m_RotationRate->graph(2)->setPen(QPen(Qt::blue));
         
         //magnetic field
+        m_MagneticField->setPlottingHint(QCP::phForceRepaint, false);
         m_MagneticField->addGraph();
         m_MagneticField->graph(0)->setPen(QPen(Qt::red));
         m_MagneticField->addGraph();
@@ -118,10 +169,12 @@ namespace local
         
         //barometrics
         //pressure
+        m_Barometrics->setPlottingHint(QCP::phForceRepaint, false);
         m_Barometrics->addGraph();
         m_Barometrics->graph(0)->setPen(QPen(Qt::blue));
         
         //attitude est
+        m_AttitudeEst->setPlottingHint(QCP::phForceRepaint, false);
         m_AttitudeEst->addGraph();
         m_AttitudeEst->graph(0)->setPen(QPen(Qt::red));
         m_AttitudeEst->addGraph();
@@ -130,6 +183,7 @@ namespace local
         m_AttitudeEst->graph(2)->setPen(QPen(Qt::blue));
         
         //velocity est
+        m_VelocityEst->setPlottingHint(QCP::phForceRepaint, false);
         m_VelocityEst->addGraph();
         m_VelocityEst->graph(0)->setPen(QPen(Qt::red));
         m_VelocityEst->addGraph();
@@ -138,6 +192,7 @@ namespace local
         m_VelocityEst->graph(2)->setPen(QPen(Qt::blue));
         
         //position est
+        m_PositionEst->setPlottingHint(QCP::phForceRepaint, false);
         m_PositionEst->addGraph();
         m_PositionEst->graph(0)->setPen(QPen(Qt::red));
         m_PositionEst->addGraph();
@@ -146,6 +201,7 @@ namespace local
         m_PositionEst->graph(2)->setPen(QPen(Qt::blue));
         
         //earth magnetic
+        m_EarthMagneticFieldEst->setPlottingHint(QCP::phForceRepaint, false);
         m_EarthMagneticFieldEst->addGraph();
         m_EarthMagneticFieldEst->graph(0)->setPen(QPen(Qt::red));
         m_EarthMagneticFieldEst->addGraph();
@@ -184,6 +240,9 @@ namespace local
     
     void PoseEstimationView::startCurrentUQuadSensorsDataPlayoutTimer()
     {
+        if(!Application::instance()->getRemoteControl().isStarted())
+            return;
+            
         m_CurrentUQuadSensorsData = m_UQuadSensorsData.front();
         m_UQuadSensorsData.pop_front();
         
@@ -240,46 +299,67 @@ namespace local
         lock_guard<fast_mutex> graphsGuard(m_GraphsGuard);
         if(m_SensorsFirstTS == base::TimePoint::min())
             m_SensorsFirstTS = d.time;
-    
-        double value = chrono::duration_cast<chrono::microseconds>(d.time - m_SensorsFirstTS).count()/1000000.0;
         
-        m_VelocityRate->graph(0)->addData(value, d.velocityRate(0));
+        m_AccelerometerCalibrationView->setRawPoint(d.velocityRate);
+        
+        uquad::hal::UQuadSensorsData cd = d;
+        cd.velocityRate = m_AccelerometerCalibrationView->calibratedPoint();
+        
+        m_PoseEstimation->processUQuadSensorsData(cd);
+        
+        m_PoseView->setUQuadAttitude(
+            QQuaternion(
+                m_PoseEstimation->attitude.w(),
+                m_PoseEstimation->attitude.x(),
+                m_PoseEstimation->attitude.y(),
+                m_PoseEstimation->attitude.z()
+            )
+        );
+        
+        m_PoseView->setMagneticField(
+            QVector3D(
+                 m_PoseEstimation->bodyMagneticField(0),
+                 m_PoseEstimation->bodyMagneticField(1),
+                 m_PoseEstimation->bodyMagneticField(2)
+            )
+        );
+
+        double value = chrono::duration_cast<chrono::microseconds>(cd.time - m_SensorsFirstTS).count()/1000000.0;
+        
+        m_VelocityRate->graph(0)->addData(value, cd.velocityRate(0));
         m_VelocityRate->graph(0)->removeDataBefore(value - 3.0);
-        m_VelocityRate->graph(1)->addData(value, d.velocityRate(1));
+        m_VelocityRate->graph(1)->addData(value, cd.velocityRate(1));
         m_VelocityRate->graph(1)->removeDataBefore(value - 3.0);
-        m_VelocityRate->graph(2)->addData(value, d.velocityRate(2));
+        m_VelocityRate->graph(2)->addData(value, cd.velocityRate(2));
         m_VelocityRate->graph(2)->removeDataBefore(value - 3.0);
         m_VelocityRate->xAxis->setRange(value, 3.0, Qt::AlignRight);
         m_VelocityRate->yAxis->rescale();
         
-        m_RotationRate->graph(0)->addData(value, d.rotationRate(0));
+        m_RotationRate->graph(0)->addData(value, cd.rotationRate(0));
         m_RotationRate->graph(0)->removeDataBefore(value - 3.0);
-        m_RotationRate->graph(1)->addData(value, d.rotationRate(1));
+        m_RotationRate->graph(1)->addData(value, cd.rotationRate(1));
         m_RotationRate->graph(1)->removeDataBefore(value - 3.0);
-        m_RotationRate->graph(2)->addData(value, d.rotationRate(2));
+        m_RotationRate->graph(2)->addData(value, cd.rotationRate(2));
         m_RotationRate->graph(2)->removeDataBefore(value - 3.0);
         m_RotationRate->xAxis->setRange(value, 3.0, Qt::AlignRight);
         m_RotationRate->yAxis->rescale();
         
-        m_MagneticField->graph(0)->addData(value, d.magneticField(0));
+        m_MagneticField->graph(0)->addData(value, cd.magneticField(0));
         m_MagneticField->graph(0)->removeDataBefore(value - 3.0);
-        m_MagneticField->graph(1)->addData(value, d.magneticField(1));
+        m_MagneticField->graph(1)->addData(value, cd.magneticField(1));
         m_MagneticField->graph(1)->removeDataBefore(value - 3.0);
-        m_MagneticField->graph(2)->addData(value, d.magneticField(2));
+        m_MagneticField->graph(2)->addData(value, cd.magneticField(2));
         m_MagneticField->graph(2)->removeDataBefore(value - 3.0);
         m_MagneticField->xAxis->setRange(value, 3.0, Qt::AlignRight);
         m_MagneticField->yAxis->rescale();
         
-        m_Barometrics->graph(0)->addData(value, d.baroPressure);
+        m_Barometrics->graph(0)->addData(value, cd.baroPressure);
         m_Barometrics->graph(0)->removeDataBefore(value - 3.0);
         m_Barometrics->xAxis->setRange(value, 3.0, Qt::AlignRight);
         m_Barometrics->yAxis->rescale();
         
         
-        m_PoseEstimation->processUQuadSensorsData(d);
-        
         Vec3f const eulerAngles = m_PoseEstimation->attitude.toRotationMatrix().eulerAngles(0, 1, 2);
-        
         
         m_AttitudeEst->graph(0)->addData(value, wrapPi(eulerAngles(0)));
         m_AttitudeEst->graph(0)->removeDataBefore(value - 3.0);
@@ -318,27 +398,12 @@ namespace local
         m_EarthMagneticFieldEst->xAxis->setRange(value, 3.0, Qt::AlignRight);
         m_EarthMagneticFieldEst->yAxis->rescale();
         
-        
-        m_Pose3DView->setUQuadAttitude(
-            QQuaternion(
-                m_PoseEstimation->attitude.w(),
-                m_PoseEstimation->attitude.x(),
-                m_PoseEstimation->attitude.y(),
-                m_PoseEstimation->attitude.z()
-            )
+        QMetaObject::invokeMethod(
+            this,
+            "updatePoseEstimationUI",
+            Qt::QueuedConnection
         );
-        
-        static uint8_t _invoke_count = 0;
-        _invoke_count++;
-        
-        if((_invoke_count >> 1) & 0x01)
-        {
-            QMetaObject::invokeMethod(
-                this,
-                "replotGraphs",
-                Qt::QueuedConnection
-            );
-        }
+
     }
     
 } //namespace local

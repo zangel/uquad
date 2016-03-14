@@ -506,25 +506,32 @@ namespace android
 
     void UQuad::handleReadPacket()
     {
-        lock_guard<fast_mutex> lock(m_SensorsDataGuard);
-        m_SensorsData.time = base::TimeClock::now();
-        m_SensorsData.velocityRate = Vec3f(
-            m_ReadPacket.packet.measurement.acceleration.x/8192.0f,
-            m_ReadPacket.packet.measurement.acceleration.y/8192.0f,
-            m_ReadPacket.packet.measurement.acceleration.z/8192.0f
-        );
-        m_SensorsData.rotationRate = Vec3f(
-            m_ReadPacket.packet.measurement.rotation_rate.x/65.536f,
-            m_ReadPacket.packet.measurement.rotation_rate.y/65.536f,
-            m_ReadPacket.packet.measurement.rotation_rate.z/65.536f
-        );
-        m_SensorsData.magneticField = Vec3f(
-            m_ReadPacket.packet.measurement.magnetic_field.x/6.0f,
-            m_ReadPacket.packet.measurement.magnetic_field.y/6.0f,
-            m_ReadPacket.packet.measurement.magnetic_field.z/6.0f
-        );
-        m_SensorsData.baroTemperature = m_ReadPacket.packet.measurement.atm_temperature/256.0f;
-        m_SensorsData.baroPressure = (m_ReadPacket.packet.measurement.atm_pressure >> 4)/4.0f;
+        static float const PIOVER180 = M_PI/180.0f;
+        static float const INV8192 = 1.0f/8192.0f;
+        static float const INV65536 = 1.0f/65.536f;
+        static float const INV6 = 1.0f/6.0f;
+
+        {
+            lock_guard<fast_mutex> lock(m_SensorsDataGuard);
+            m_SensorsData.time = base::TimeClock::now();
+            m_SensorsData.velocityRate = INV8192*Vec3f(
+                -m_ReadPacket.packet.measurement.acceleration.x,
+                -m_ReadPacket.packet.measurement.acceleration.y,
+                 m_ReadPacket.packet.measurement.acceleration.z
+            );
+            m_SensorsData.rotationRate = PIOVER180*INV65536*Vec3f(
+                -m_ReadPacket.packet.measurement.rotation_rate.x,
+                -m_ReadPacket.packet.measurement.rotation_rate.y,
+                 m_ReadPacket.packet.measurement.rotation_rate.z
+            );
+            m_SensorsData.magneticField = INV6*Vec3f(
+                -m_ReadPacket.packet.measurement.magnetic_field.x,
+                -m_ReadPacket.packet.measurement.magnetic_field.y,
+                 m_ReadPacket.packet.measurement.magnetic_field.z
+            );
+            m_SensorsData.baroTemperature = m_ReadPacket.packet.measurement.atm_temperature/256.0f;
+            m_SensorsData.baroPressure = (m_ReadPacket.packet.measurement.atm_pressure >> 4)/4.0f;
+        }
 
         notifyOnUQuadSensorsReady();
         queueReadRequest();

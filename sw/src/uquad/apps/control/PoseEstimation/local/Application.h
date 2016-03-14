@@ -3,9 +3,6 @@
 
 #include "Config.h"
 
-#include <uquad/base/Runloop.h>
-#include <uquad/comm/RemoteControlClient.h>
-
 namespace ctrlpe
 {
 namespace local

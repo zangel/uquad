@@ -9,7 +9,9 @@ set(PoseEstimation_headers
     Application.h
     MainWindow.h
 	PoseEstimationView.h
-    Pose3DView.h
+    View3D.h
+    PoseView.h
+    AccelerometerCalibrationView.h
     ../common/msg/UQuadSensorsData.h
 	qcustomplot.h
 )
@@ -18,7 +20,9 @@ set(PoseEstimation_sources
     Application.cpp
     MainWindow.cpp
 	PoseEstimationView.cpp
-    Pose3DView.cpp
+    View3D.cpp
+    PoseView.cpp
+    AccelerometerCalibrationView.cpp
     ../common/msg/UQuadSensorsData.cpp
 	qcustomplot.cpp
     main.cpp
@@ -60,8 +64,8 @@ add_executable(PoseEstimation ${PoseEstimation_APP_TYPE}
     ${PoseEstimation_generated_resources}
 )
 
-target_link_libraries(PoseEstimation Qt5::Widgets Qt5::PrintSupport Qt5::3DCore Qt5::3DInput Qt5::3DRenderer)
-target_link_libraries(PoseEstimation comm hal control)
+target_link_libraries(PoseEstimation Qt5::Widgets Qt5::PrintSupport Qt5::3DCore Qt5::3DInput)
+target_link_libraries(PoseEstimation math comm hal control "-framework OpenGL")
 
 #install(TARGETS Navigation
 #	RUNTIME DESTINATION ${UQUAD_EXECUTABLE_OUTPUT_PATH}

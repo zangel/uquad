@@ -64,9 +64,11 @@ namespace remote
         {
             m_CurrSensorData->uquadSensorsData.push_back(hal::UQuadSensorsData());
             m_UQuad->getSensorsData(m_CurrSensorData->uquadSensorsData.back());
+
             if(m_CurrSensorData->uquadSensorsData.size() == NUM_SAMPLES)
             {
                 m_RemoteControlServer.sendMessage(m_CurrSensorData);
+
                 m_CurrSensorData.reset(new common::msg::UQuadSensorsData());
             }
         }

@@ -6,6 +6,8 @@
 #include "magnetic.h"
 #include "types.h"
 
+#define UQUAD_CONTROL_IKF_POSE_ESTIMATION_USE_9DOF 1
+
 namespace uquad
 {
 namespace control
@@ -44,14 +46,17 @@ namespace ikf
         
         AccelSensor m_AccelSensor;
         GyroSensor m_GyroSensor;
-        MagSensor m_MagSensor;
         
+        
+        #if UQUAD_CONTROL_IKF_POSE_ESTIMATION_USE_9DOF
+        MagSensor m_MagSensor;
         MagneticBuffer m_MagBuffer;
         MagCalibration m_MagCalibration;
-        
-        //SV_1DOF_P_BASIC m_PressureState;
         SV_9DOF_GBY_KALMAN m_9DOFState;
+        #else
         SV_6DOF_GY_KALMAN m_6DOFState;
+        #endif
+        //SV_1DOF_P_BASIC m_PressureState;
     };
     
     

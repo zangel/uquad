@@ -181,6 +181,8 @@ add_library(boost_unit_test_framework STATIC
 	${PROJECT_SOURCE_DIR}/libs/test/src/xml_report_formatter.cpp
 )
 
+target_link_libraries(boost_unit_test_framework boost_system)
+
 if(UQUAD_PLATFORM_ANDROID)
 	add_library(boost_log STATIC
 		${PROJECT_SOURCE_DIR}/libs/log/src/attribute_name.cpp

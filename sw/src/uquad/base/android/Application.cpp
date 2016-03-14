@@ -9,6 +9,11 @@ namespace base
     {
         return fs::current_path();
     }
+    
+    system::error_code Application::spin()
+    {
+        return m_MainRunloop.run();
+    }
 
 } //namespace base
 } //namespace uquad

@@ -141,8 +141,9 @@ elseif(UQUAD_PLATFORM_IOS)
 	)
 	
 	set(uquad_base_libs
-		${uquad_base_libs}
+        ${uquad_base_libs}
 		${uquad_base_ios_libs}
+        "-framework UIKit"
 	)
 endif()
 

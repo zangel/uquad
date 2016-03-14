@@ -72,8 +72,6 @@ namespace base
         , m_Graph(0)
         , m_Handle()
         , m_Index(0)
-        , m_InputPorts()
-        , m_OutputPorts()
     {
     }
     
@@ -81,26 +79,7 @@ namespace base
     {
     }
     
-    system::error_code Graph::Node::addInputPort(intrusive_ptr<Graph::Port> p)
-    {
-        if(!p || p->m_Node)
-            return makeErrorCode(kENotFound);
-        
-        m_InputPorts.push_back(p);
-        p->m_Node = this;
-        return makeErrorCode(kENoError);
-    }
     
-    system::error_code Graph::Node::addOutputPort(intrusive_ptr<Graph::Port> p)
-    {
-        if(!p || p->m_Node)
-            return makeErrorCode(kENotFound);
-        
-        m_OutputPorts.push_back(p);
-        p->m_Node = this;
-        return makeErrorCode(kENoError);
-    }
-        
     Graph::Connection::Connection()
         : RefCounted()
         , m_Graph(0)
@@ -116,7 +95,6 @@ namespace base
     
     Graph::Port::Port()
         : RefCounted()
-        , m_Node(0)
     {
     }
     

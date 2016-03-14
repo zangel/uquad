@@ -2,6 +2,16 @@
 #define CTRLPE_LOCAL_CONFIG_H
 
 #include <uquad/Config.h>
+#include <uquad/math/geom/Ellipsoid.h>
+#include <uquad/math/geom/ArcBall.h>
+#include <uquad/base/Runloop.h>
+#include <uquad/hal/UQuad.h>
+#include <uquad/comm/RemoteControlClient.h>
+#include <uquad/comm/Message.h>
+#include <uquad/comm/RemoteControl.h>
+
+#include <uquad/control/PoseEstimation.h>
+#include <uquad/control/AccelerometerCalibration.h>
 
 #include <QObject>
 #include <QApplication>
@@ -24,6 +34,7 @@
 #include <QProcess>
 #include <QSettings>
 #include <QPushButton>
+#include <QMouseEvent>
 #include <QOpenGLWidget>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions>
@@ -32,26 +43,6 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 #include <QFileDialog>
-#include <Qt3DCore/QAspectEngine>
-#include <Qt3DInput/QInputAspect>
-#include <Qt3DRenderer/QRenderAspect>
-#include <Qt3DRenderer/QFrameGraph>
-#include <Qt3DRenderer/QForwardRenderer>
-#include <Qt3DCore/QCamera>
-#include <Qt3DCore/QEntity>
-
-#include <Qt3DRenderer/QSceneLoader>
-#include <Qt3DCore/QTranslateTransform>
-#include <Qt3DCore/QMatrixTransform>
-#include <Qt3DCore/QRotateTransform>
-#include <Qt3DCore/QLookatTransform>
-#include <Qt3DCore/QTransform>
-#include <Qt3DRenderer/QTorusMesh>
-#include <Qt3DRenderer/QCylinderMesh>
-#include <Qt3DRenderer/QMesh>
-#include <Qt3DRenderer/QPlaneMesh>
-#include <Qt3DRenderer/QPhongMaterial>
-
 
 namespace ctrlpe
 {

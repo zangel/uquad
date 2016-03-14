@@ -5,6 +5,7 @@ set(uquad_control_headers
 	SystemLibrary.h
     Graph.h
 	PoseEstimation.h
+    AccelerometerCalibration.h
 )
 
 set(uquad_control_sources
@@ -13,6 +14,7 @@ set(uquad_control_sources
 	SystemLibrary.cpp
     Graph.cpp
 	PoseEstimation.cpp
+    AccelerometerCalibration.cpp
 )
 
 set(uquad_control_libs base)
@@ -40,6 +42,7 @@ if(UQUAD_CONTROL_POSE_ESTIMATION_EKF)
     set(uquad_control_headers ${uquad_control_headers} ${uquad_control_pose_estimation_ekf_headers})
     set(uquad_control_sources ${uquad_control_sources} ${uquad_control_pose_estimation_ekf_sources})
     set(uquad_control_libs ${uquad_control_libs} ${uquad_control_pose_estimation_ekf_libs})
+    add_definitions(-DUQUAD_CONTROL_POSE_ESTIMATION_EKF)
 endif()
 
 set(UQUAD_CONTROL_POSE_ESTIMATION_EKF2 "YES" CACHE BOOL "Build ekf2 pose estimation")
@@ -86,6 +89,7 @@ if(UQUAD_CONTROL_POSE_ESTIMATION_EKF2)
     set(uquad_control_headers ${uquad_control_headers} ${uquad_control_pose_estimation_ekf2_headers} ${uquad_control_pose_estimation_ekf2_matrix_headers})
     set(uquad_control_sources ${uquad_control_sources} ${uquad_control_pose_estimation_ekf2_sources} ${uquad_control_pose_estimation_ekf2_matrix_sources})
     set(uquad_control_libs ${uquad_control_libs} ${uquad_control_pose_estimation_ekf2_libs} ${uquad_control_pose_estimation_ekf2_matrix_libs})
+    add_definitions(-DUQUAD_CONTROL_POSE_ESTIMATION_EKF2)
 endif()
 
 set(UQUAD_CONTROL_POSE_ESTIMATION_IKF "YES" CACHE BOOL "Build ikf pose estimation")
@@ -119,6 +123,7 @@ if(UQUAD_CONTROL_POSE_ESTIMATION_IKF)
     set(uquad_control_headers ${uquad_control_headers} ${uquad_control_pose_estimation_ikf_headers})
     set(uquad_control_sources ${uquad_control_sources} ${uquad_control_pose_estimation_ikf_sources})
     set(uquad_control_libs ${uquad_control_libs} ${uquad_control_pose_estimation_ikf_libs})
+    add_definitions(-DUQUAD_CONTROL_POSE_ESTIMATION_IKF)
 endif()
 
 set(UQUAD_CONTROL_POSE_ESTIMATION_MADGWICK "YES" CACHE BOOL "Build madgwick pose estimation")
@@ -140,6 +145,7 @@ if(UQUAD_CONTROL_POSE_ESTIMATION_MADGWICK)
     set(uquad_control_headers ${uquad_control_headers} ${uquad_control_pose_estimation_madgwick_headers})
     set(uquad_control_sources ${uquad_control_sources} ${uquad_control_pose_estimation_madgwick_sources})
     set(uquad_control_libs ${uquad_control_libs} ${uquad_control_pose_estimation_madgwick_libs})
+    add_definitions(-DUQUAD_CONTROL_POSE_ESTIMATION_MADGWICK)
 endif()
 
 add_library(control

@@ -282,7 +282,7 @@ void fInvertMagCal(struct MagSensor *pthisMag, struct MagCalibration *pthisMagCa
 }
 
 // function runs the magnetic calibration
-void fRunMagCalibration(struct MagCalibration *pthisMagCal, struct MagneticBuffer *pthisMagBuffer, struct MagSensor* pthisMag)
+void fRunMagCalibration(struct SV_Base *pSV, struct MagCalibration *pthisMagCal, struct MagneticBuffer *pthisMagBuffer, struct MagSensor* pthisMag)
 {
 	int8 i, j;			// loop counters
 	int8 isolver;		// magnetic solver used
@@ -293,7 +293,7 @@ void fRunMagCalibration(struct MagCalibration *pthisMagCal, struct MagneticBuffe
 		// age the existing fit error to avoid one good calibration locking out future updates
 		if (pthisMagCal->iValidMagCal)
 		{
-			pthisMagCal->fFitErrorpc *= (1.0F + (float) INTERVAL4CAL * (float) OVERSAMPLE_RATIO / ((float) SENSORFS * FITERRORAGINGSECS));	
+			pthisMagCal->fFitErrorpc *= (1.0F + (float) INTERVAL4CAL * (float) pSV->iOversampleRatio / ((float) pSV->iSensorFS * FITERRORAGINGSECS));
 		}
 		// call the 4 element matrix inversion calibration
 		isolver = 4;
@@ -305,7 +305,7 @@ void fRunMagCalibration(struct MagCalibration *pthisMagCal, struct MagneticBuffe
 		// age the existing fit error to avoid one good calibration locking out future updates
 		if (pthisMagCal->iValidMagCal)
 		{
-			pthisMagCal->fFitErrorpc *= (1.0F + (float) INTERVAL7CAL * (float) OVERSAMPLE_RATIO / ((float) SENSORFS * FITERRORAGINGSECS));	
+			pthisMagCal->fFitErrorpc *= (1.0F + (float) INTERVAL7CAL * (float) pSV->iOversampleRatio / ((float) pSV->iSensorFS * FITERRORAGINGSECS));
 		}
 		// call the 7 element eigenpair calibration
 		isolver = 7;
@@ -317,7 +317,7 @@ void fRunMagCalibration(struct MagCalibration *pthisMagCal, struct MagneticBuffe
 		// age the existing fit error to avoid one good calibration locking out future updates
 		if (pthisMagCal->iValidMagCal)
 		{
-			pthisMagCal->fFitErrorpc *= (1.0F + (float) INTERVAL10CAL * (float) OVERSAMPLE_RATIO / ((float) SENSORFS * FITERRORAGINGSECS));	
+			pthisMagCal->fFitErrorpc *= (1.0F + (float) INTERVAL10CAL * (float) pSV->iOversampleRatio / ((float) pSV->iSensorFS * FITERRORAGINGSECS));
 		}
 		// call the 10 element eigenpair calibration
 		isolver = 10;

@@ -94,56 +94,64 @@ struct PressureSensor
 // accelerometer sensor structure definition
 struct AccelSensor
 {
-	float fGsAvg[3];						// averaged measurement (g)
-	float fgPerCount;						// g per count
-	int16 iGsBuffer[OVERSAMPLE_RATIO][3];	// buffered measurements (counts)
-	int16 iGs[3];							// most recent unaveraged measurement (counts)
-	int16 iGsAvg[3];						// averaged measurement (counts)
-	int16 iCountsPerg;						// counts per g
-	uint8 iWhoAmI;							// sensor whoami
+	float fGsAvg[3];                            // averaged measurement (g)
+	float fgPerCount;                           // g per count
+	int16 iGsBuffer[MAX_OVERSAMPLE_RATIO][3];	// buffered measurements (counts)
+	int16 iGs[3];                               // most recent unaveraged measurement (counts)
+	int16 iGsAvg[3];                            // averaged measurement (counts)
+	int16 iCountsPerg;                          // counts per g
+	uint8 iWhoAmI;                              // sensor whoami
 };
 
 // magnetometer sensor structure definition
 struct MagSensor
 {
-	float fBsAvg[3];						// averaged un-calibrated measurement (uT)
-	float fBcAvg[3];						// averaged calibrated measurement (uT)
-	float fuTPerCount;						// uT per count
-	float fCountsPeruT;						// counts per uT
-	int16 iBsBuffer[OVERSAMPLE_RATIO][3];	// buffered uncalibrated measurement (counts)
-	int16 iBs[3];							// most recent unaveraged uncalibrated measurement (counts)
-	int16 iBsAvg[3];						// averaged uncalibrated measurement (counts)
-	int16 iBcAvg[3];						// averaged calibrated measurement (counts)
-	int16 iCountsPeruT;						// counts per uT
-	uint8 iWhoAmI;							// sensor whoami
+	float fBsAvg[3];                            // averaged un-calibrated measurement (uT)
+	float fBcAvg[3];                            // averaged calibrated measurement (uT)
+	float fuTPerCount;                          // uT per count
+	float fCountsPeruT;                         // counts per uT
+	int16 iBsBuffer[MAX_OVERSAMPLE_RATIO][3];	// buffered uncalibrated measurement (counts)
+	int16 iBs[3];                               // most recent unaveraged uncalibrated measurement (counts)
+	int16 iBsAvg[3];                            // averaged uncalibrated measurement (counts)
+	int16 iBcAvg[3];                            // averaged calibrated measurement (counts)
+	int16 iCountsPeruT;                         // counts per uT
+	uint8 iWhoAmI;                              // sensor whoami
 };
 
 // gyro sensor structure definition
 struct GyroSensor
 {
-	float fDegPerSecPerCount;				// deg/s per count
-	int16 iYsBuffer[OVERSAMPLE_RATIO][3];	// buffered sensor frame measurements (counts)
-	int16 iCountsPerDegPerSec;				// counts per deg/s
-	int16 iYs[3];							// most recent sensor frame measurement (counts)
-	uint8 iWhoAmI;							// sensor whoami
+	float fDegPerSecPerCount;                   // deg/s per count
+	int16 iYsBuffer[MAX_OVERSAMPLE_RATIO][3];	// buffered sensor frame measurements (counts)
+	int16 iCountsPerDegPerSec;                  // counts per deg/s
+	int16 iYs[3];                               // most recent sensor frame measurement (counts)
+	uint8 iWhoAmI;                              // sensor whoami
+};
+
+struct SV_Base
+{
+    int32 iSensorFS;
+    int32 iOversampleRatio;
 };
 
 // 1DOF pressure state vector structure
 struct SV_1DOF_P_BASIC
+    : SV_Base
 {
-	float fLPH;					// low pass filtered height (m)
-	float fLPT;					// low pass filtered temperature (C)
-	float fdeltat;				// time interval (s)	
-	float flpf;					// low pass filter coefficient
-	int32 systick;				// systick timer
-	int8 resetflag;				// flag to request re-initialization on next pass
+	float fLPH;                     // low pass filtered height (m)
+	float fLPT;                     // low pass filtered temperature (C)
+	float fdeltat;                  // time interval (s)
+	float flpf;                     // low pass filter coefficient
+	int32 systick;                  // systick timer
+	int8 resetflag;                 // flag to request re-initialization on next pass
 };
 
 // 3DOF basic accelerometer state vector structure
 struct SV_3DOF_G_BASIC
+    : SV_Base
 {
 	// start: elements common to all motion state vectors
-	float fLPPhi;					// low pass roll (deg)
+    float fLPPhi;					// low pass roll (deg)
 	float fLPThe;					// low pass pitch (deg)
 	float fLPPsi;					// low pass yaw (deg)
 	float fLPRho;					// low pass compass (deg)
@@ -163,8 +171,9 @@ struct SV_3DOF_G_BASIC
 
 // 3DOF basic magnetometer state vector structure
 struct SV_3DOF_B_BASIC
+    : SV_Base
 {
-	// start: elements common to all motion state vectors
+    // start: elements common to all motion state vectors
 	float fLPPhi;						// low pass roll (deg)
 	float fLPThe;						// low pass pitch (deg)
 	float fLPPsi;						// low pass yaw (deg)
@@ -185,8 +194,9 @@ struct SV_3DOF_B_BASIC
 
 // 3DOF basic gyroscope state vector structure
 struct SV_3DOF_Y_BASIC
+    : SV_Base
 {
-	// start: elements common to all motion state vectors
+    // start: elements common to all motion state vectors
 	float fPhi;						// roll (deg)
 	float fThe;						// pitch (deg)
 	float fPsi;						// yaw (deg)
@@ -205,6 +215,7 @@ struct SV_3DOF_Y_BASIC
 
 // 6DOF basic accelerometer and magnetometer state vector structure
 struct SV_6DOF_GB_BASIC
+    : SV_Base
 {
 	// start: elements common to all motion state vectors
 	float fLPPhi;					// low pass roll (deg)
@@ -229,8 +240,9 @@ struct SV_6DOF_GB_BASIC
 
 // 6DOF Kalman filter accelerometer and gyroscope state vector structure
 struct SV_6DOF_GY_KALMAN
+    : SV_Base
 {
-	// start: elements common to all motion state vectors
+    // start: elements common to all motion state vectors
 	float fPhiPl;						// roll (deg)
 	float fThePl;						// pitch (deg)
 	float fPsiPl;						// yaw (deg)
@@ -261,6 +273,7 @@ struct SV_6DOF_GY_KALMAN
 
 // 9DOF Kalman filter accelerometer, magnetometer and gyroscope state vector structure
 struct SV_9DOF_GBY_KALMAN
+    : SV_Base
 {
 	// start: elements common to all motion state vectors
 	float fPhiPl;						// roll (deg)

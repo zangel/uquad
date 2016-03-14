@@ -3,14 +3,17 @@
 
 #include "Config.h"
 #include "ui_PoseEstimationView.h"
-#include <uquad/comm/RemoteControl.h>
+
 #include "../common/msg/UQuadSensorsData.h"
-#include <uquad/control/PoseEstimation.h>
+
 
 namespace ctrlpe
 {
 namespace local
 {
+    class PoseView;
+    class EllipsoidView;
+        
     class PoseEstimationView
         : public QWidget
         , protected Ui::PoseEstimationView
@@ -35,10 +38,13 @@ namespace local
         
         
     protected slots:
+        void onResetCalibrationClicked();
+        void onSaveCalibrationClicked();
+        
     
     private:
         void setupGraphs();
-        Q_INVOKABLE void replotGraphs();
+        void replotGraphs();
         void handleUQuadSensorsDataReceived(intrusive_ptr<common::msg::UQuadSensorsData> sd);
         void startCurrentUQuadSensorsDataPlayoutTimer();
         void handleCurrentUQuadSensorsDataPlayoutTimer(system::error_code ec);
