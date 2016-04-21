@@ -11,7 +11,7 @@ namespace uquad
 namespace base
 {
     class Object
-    	: public RefCounted
+    	: public virtual RefCounted
     {
     public:
         typedef std::type_index Type;

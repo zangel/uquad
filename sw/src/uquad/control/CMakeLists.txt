@@ -1,20 +1,53 @@
 set(uquad_control_headers
 	Config.h
 	Log.h
-	System.h
-	SystemLibrary.h
-    Graph.h
-	PoseEstimation.h
+	Block.h
+	BlockLibrary.h
+    Signal.h
+    System.h
+    Clock.h
+    Accelerometer.h
+    Gyroscope.h
+    Magnetometer.h
+    Barometer.h
+    UQuadSensors.h
+    PoseEstimation.h
     AccelerometerCalibration.h
+    GyroscopeCalibration.h
+    MagnetometerCalibration.h
+    Filters.h
+    MotorsThrust.h
+    QuadMotorsThrust.h
+    QuadMotorsThrustSimple.h
+    AttitudeControl.h
+    AttitudeControlSimple.h
+    PositionControl.h
+    PositionControlSimple.h
 )
 
 set(uquad_control_sources
 	Config.cpp
-	System.cpp
-	SystemLibrary.cpp
-    Graph.cpp
-	PoseEstimation.cpp
+	Block.cpp
+	BlockLibrary.cpp
+    Signal.cpp
+    System.cpp
+    Clock.cpp
+    Accelerometer.cpp
+    Gyroscope.cpp
+    Magnetometer.cpp
+    Barometer.cpp
+    UQuadSensors.cpp
+    PoseEstimation.cpp
     AccelerometerCalibration.cpp
+    GyroscopeCalibration.cpp
+    MagnetometerCalibration.cpp
+    MotorsThrust.cpp
+    QuadMotorsThrust.cpp
+    QuadMotorsThrustSimple.cpp
+    AttitudeControl.cpp
+    AttitudeControlSimple.cpp
+    PositionControl.cpp
+    PositionControlSimple.cpp
 )
 
 set(uquad_control_libs base)
@@ -48,16 +81,29 @@ endif()
 set(UQUAD_CONTROL_POSE_ESTIMATION_EKF2 "YES" CACHE BOOL "Build ekf2 pose estimation")
 if(UQUAD_CONTROL_POSE_ESTIMATION_EKF2)
 	set(uquad_control_pose_estimation_ekf2_headers
-	    ekf2/RingBuffer.h
-	    ekf2/Types.h
-	    ekf2/EKFIf.h
-	    ekf2/EKF.h
-	    ekf2/PoseEstimation.h
+	    ekf2/ecl/EKF/common.h
+        ekf2/ecl/EKF/ekf.h
+        ekf2/ecl/EKF/estimator_interface.h
+        ekf2/ecl/EKF/RingBuffer.h
+        ekf2/ecl/EKF/mathlib.cpp
+        ekf2/ecl/EKF/geo.cpp
+        ekf2/PoseEstimation.h
 	)
 
 	set(uquad_control_pose_estimation_ekf2_sources
-	    ekf2/EKFIf.cpp
-	    ekf2/EKF.cpp
+        ekf2/ecl/EKF/airspeed_fusion.cpp
+        ekf2/ecl/EKF/control.cpp
+        ekf2/ecl/EKF/covariance.cpp
+        ekf2/ecl/EKF/ekf_helper.cpp
+        ekf2/ecl/EKF/ekf.cpp
+        ekf2/ecl/EKF/estimator_interface.cpp
+        ekf2/ecl/EKF/gps_checks.cpp
+        ekf2/ecl/EKF/mag_fusion.cpp
+        ekf2/ecl/EKF/optflow_fusion.cpp
+        ekf2/ecl/EKF/terrain_estimator.cpp
+        ekf2/ecl/EKF/vel_pos_fusion.cpp
+        ekf2/ecl/EKF/mathlib.h
+        ekf2/ecl/EKF/geo.h
 		ekf2/PoseEstimation.cpp
 	)
 
@@ -66,17 +112,17 @@ if(UQUAD_CONTROL_POSE_ESTIMATION_EKF2)
 	source_group("ekf2" FILES ${uquad_control_pose_estimation_ekf2_headers} ${uquad_control_pose_estimation_ekf2_sources})
 
 	set(uquad_control_pose_estimation_ekf2_matrix_headers
-		ekf2/matrix/math.hpp
-	    ekf2/matrix/helper_functions.hpp
-		ekf2/matrix/Matrix.hpp
-		ekf2/matrix/SquareMatrix.hpp
-		ekf2/matrix/Vector.hpp
-		ekf2/matrix/Vector2.hpp
-		ekf2/matrix/Vector3.hpp
-		ekf2/matrix/Euler.hpp
-		ekf2/matrix/Dcm.hpp
-		ekf2/matrix/Scalar.hpp
-		ekf2/matrix/Quaternion.hpp
+		ekf2/ecl/matrix/matrix/math.hpp
+	    ekf2/ecl/matrix/matrix/helper_functions.hpp
+		ekf2/ecl/matrix/matrix/Matrix.hpp
+		ekf2/ecl/matrix/matrix/SquareMatrix.hpp
+		ekf2/ecl/matrix/matrix/Vector.hpp
+		ekf2/ecl/matrix/matrix/Vector2.hpp
+		ekf2/ecl/matrix/matrix/Vector3.hpp
+		ekf2/ecl/matrix/matrix/Euler.hpp
+		ekf2/ecl/matrix/matrix/Dcm.hpp
+		ekf2/ecl/matrix/matrix/Scalar.hpp
+		ekf2/ecl/matrix/matrix/Quaternion.hpp
 	)
 
 	set(uquad_control_pose_estimation_ekf2_matrix_sources
@@ -90,6 +136,8 @@ if(UQUAD_CONTROL_POSE_ESTIMATION_EKF2)
     set(uquad_control_sources ${uquad_control_sources} ${uquad_control_pose_estimation_ekf2_sources} ${uquad_control_pose_estimation_ekf2_matrix_sources})
     set(uquad_control_libs ${uquad_control_libs} ${uquad_control_pose_estimation_ekf2_libs} ${uquad_control_pose_estimation_ekf2_matrix_libs})
     add_definitions(-DUQUAD_CONTROL_POSE_ESTIMATION_EKF2)
+    add_definitions(-DPOSIX_SHARED)
+    include_directories(ekf2/ecl)
 endif()
 
 set(UQUAD_CONTROL_POSE_ESTIMATION_IKF "YES" CACHE BOOL "Build ikf pose estimation")

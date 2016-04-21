@@ -11,6 +11,15 @@ namespace control
     class AccelerometerCalibration
     {
     public:
+    
+        static std::size_t const DIRECTION_COUNT_L0 = 6;
+        static std::size_t const DIRECTION_COUNT_L1 = 8;
+        static std::size_t const DIRECTION_COUNT_L2 = 12;
+        static std::size_t const DIRECTION_COUNT = DIRECTION_COUNT_L0 + DIRECTION_COUNT_L1 + DIRECTION_COUNT_L2;
+        
+        static std::size_t directionIndex(Vec3f dir);
+        static Vec3f direction(std::size_t index);
+        
         typedef accumulators::accumulator_set
         <
             float,
@@ -19,54 +28,47 @@ namespace control
                 accumulators::tag::rolling_mean,
                 accumulators::tag::rolling_variance
             >
-        > real_stats_t;
+        > stats_t;
         
         AccelerometerCalibration();
         ~AccelerometerCalibration();
         
         
-        static std::size_t const POINTS_COUNT_L0 = 6;
-        static std::size_t const POINTS_COUNT_L1 = 8;
-        static std::size_t const POINTS_COUNT_L2 = 12;
-        static std::size_t const POINTS_COUNT = POINTS_COUNT_L0 + POINTS_COUNT_L1 + POINTS_COUNT_L2;
-        
-        static std::size_t indexOfDirection(Vec3f dir);
-        static Vec3f directionOfIndex(std::size_t index);
-        
-        
-        inline Transform3af const& mapTransform() const { return m_MapTransform; }
-        inline Transform3af const& calibrationTransform() const { return m_CalibrationTransform; }
-        
-        
         void setStatsWindowSize(std::size_t sws);
         void setStatsSD(float ssd);
         
+        void processSample(Vec3f sample);
+        bool isDirectionSampled(std::size_t index) const;
+        Vec3f meanSample() const;
+        
         void reset();
-        void process(Vec3f point);
-        
-        inline float pointsQuality() const { return m_PointsQuality; }
-        inline Vec3f meanPoint() const { return m_MeanPoint; }
-        
-        inline bool isDirectionSampled(std::size_t index) const { return m_PointsFlags.test(index); }
-        
         void update();
+        
+        float samplesQuality() const;
+        
+        Transform3af const& mapTransform() const;
+        Transform3af const& calibrationTransform() const;
         
         template<class Archive>
         void serialize(Archive &ar, const unsigned int) BOOST_USED;
         
     private:
-        void updatePointsQuality();
+        void updateSamplesQuality();
         
     protected:
-        std::bitset<64> m_PointsFlags;
-        Vec3f m_Points[POINTS_COUNT];
-        float m_PointsQuality;
         std::size_t m_StatsWindowSize;
         float m_StatsSD;
-        real_stats_t m_StatsX;
-        real_stats_t m_StatsY;
-        real_stats_t m_StatsZ;
-        Vec3f m_MeanPoint;
+        
+        stats_t m_StatsX;
+        stats_t m_StatsY;
+        stats_t m_StatsZ;
+        
+        Vec3f m_MeanSample;
+        
+        std::bitset<64> m_DirectionSampled;
+        Vec3f m_Samples[DIRECTION_COUNT];
+        float m_SamplesQuality;
+        
         Transform3af m_MapTransform;
         Transform3af m_CalibrationTransform;
     };

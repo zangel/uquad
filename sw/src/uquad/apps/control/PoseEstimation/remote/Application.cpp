@@ -39,6 +39,11 @@ namespace remote
             return base::makeErrorCode(base::kENoSuchDevice);
         }
         
+        if(!m_UQuad->areMotorsRunning())
+        {
+            m_UQuad->armMotors();
+        }
+
         m_CurrSensorData.reset(new common::msg::UQuadSensorsData());
         m_UQuad->uquadDelegate() += this;
         m_RemoteControlServer.start();
@@ -56,6 +61,20 @@ namespace remote
     
     void Application::onRemoteControlMessageReceived(intrusive_ptr<comm::Message> msg)
     {
+        if(intrusive_ptr<common::msg::UQuadMotorsPower> motorsPower = dynamic_pointer_cast<common::msg::UQuadMotorsPower>(msg))
+        {
+            handleUQuadMotorsPowerReceived(motorsPower);
+        }
+    }
+    
+    void Application::handleUQuadMotorsPowerReceived(intrusive_ptr<common::msg::UQuadMotorsPower> mp)
+    {
+        m_UQuad->setMotorsPower(
+            mp->motorsPower(3),
+            mp->motorsPower(2),
+            mp->motorsPower(1),
+            mp->motorsPower(0)
+        );
     }
     
     void Application::onUQuadSensorsReady()

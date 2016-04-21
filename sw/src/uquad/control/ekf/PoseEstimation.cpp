@@ -1,5 +1,4 @@
 #include "PoseEstimation.h"
-#include "../SystemLibrary.h"
 #include "../../base/Error.h"
 
 namespace uquad
@@ -20,10 +19,29 @@ namespace ekf
     
     PoseEstimation::PoseEstimation()
         : control::PoseEstimation()
-        , m_bPrepared(false)
+        , m_DT(dTName())
+        , m_Time(timeName())
+        , m_VelocityRate(velocityRateName())
+        , m_RotationRate(rotationRateName())
+        , m_MagneticField(magneticFieldName())
+        , m_RelativeAltitude(relativeAltitudeName())
+        , m_Attitude(attitudeName())
+        , m_Position(positionName())
+        , m_Velocity(velocityName())
         , m_EKFContext( { 0 } )
         , m_EKF(m_EKFContext)
     {
+        intrusive_ptr_add_ref(&m_DT); addInputPort(&m_DT);
+        intrusive_ptr_add_ref(&m_Time); addInputPort(&m_Time);
+        intrusive_ptr_add_ref(&m_VelocityRate); addInputPort(&m_VelocityRate);
+        intrusive_ptr_add_ref(&m_RotationRate); addInputPort(&m_RotationRate);
+        intrusive_ptr_add_ref(&m_MagneticField); addInputPort(&m_MagneticField);
+        intrusive_ptr_add_ref(&m_RelativeAltitude); addInputPort(&m_RelativeAltitude);
+        
+        
+        intrusive_ptr_add_ref(&m_Attitude); addOutputPort(&m_Attitude);
+        intrusive_ptr_add_ref(&m_Position); addOutputPort(&m_Position);
+        intrusive_ptr_add_ref(&m_Velocity); addOutputPort(&m_Velocity);
     }
     
     PoseEstimation::~PoseEstimation()
@@ -35,114 +53,97 @@ namespace ekf
         return true;
     }
         
-    system::error_code PoseEstimation::prepare()
+    system::error_code PoseEstimation::prepare(asio::yield_context yctx)
     {
-        if(m_bPrepared)
-            return base::makeErrorCode(base::kEAlreadyStarted);
+        if(system::error_code pee = control::PoseEstimation::prepare(yctx))
+            return pee;
+        
+        if( !m_DT.sourceConnection() ||
+            !m_VelocityRate.sourceConnection() ||
+            !m_RotationRate.sourceConnection() ||
+            !m_MagneticField.sourceConnection() )
+        {
+            return base::makeErrorCode(base::kEInvalidState);
+        }
+        
+        m_EKFContext.time_us = 0;
         
         m_EKF.useCompass = true;
         
-        m_IMUTime = m_IMUStartTime = base::TimePoint::min();
         m_MagDelay = chrono::milliseconds(30);
         
         m_bOnGround = true;
         
         m_EKFCovariancePredDT = 0.0f;
         
-        m_bPrepared = true;
         return base::makeErrorCode(base::kENoError);
     }
     
-    bool PoseEstimation::isPrepared() const
+    void PoseEstimation::unprepare(asio::yield_context yctx)
     {
-        return m_bPrepared;
-    }
-    
-    void PoseEstimation::unprepare()
-    {
-        if(!m_bPrepared)
-            return;
-        
-        m_bPrepared = false;
+        control::PoseEstimation::unprepare(yctx);
     }
     
     #define EKF_USE_VR 1
-    #define EKF_USE_AR 1
-    #define EKF_USE_MF 1
+    #define EKF_USE_RR 1
+    #define EKF_USE_MF 0
     #define EKF_USE_BA 0
     
-    system::error_code PoseEstimation::processUQuadSensorsData(hal::UQuadSensorsData const &usd)
+    system::error_code PoseEstimation::update(asio::yield_context yctx)
     {
-        #if EKF_USE_AR
-        ::Vector3f angRate = ::Vector3f(
-            usd.rotationRate(0),
-            usd.rotationRate(1),
-            usd.rotationRate(2)
-        );
-        #else
-        ::Vector3f angRate = ::Vector3f();
-        #endif
-        
         #if EKF_USE_VR
         ::Vector3f velocityRate = ::Vector3f(
-            usd.velocityRate(0),
-            usd.velocityRate(1),
-            usd.velocityRate(2)
-        );
+            -m_VelocityRate.m_Value(0),
+            -m_VelocityRate.m_Value(1),
+            -m_VelocityRate.m_Value(2)
+        ) * 9.80665f;
         #else
         ::Vector3f velocityRate = ::Vector3f(0.0f, 0.0f, -9.80665f);
         #endif
         
-        #if EKF_USE_MF
-        ::Vector3f magneticField = ::Vector3f(
-            usd.magneticField(0),
-            usd.magneticField(1),
-            usd.magneticField(2)
+        #if EKF_USE_RR
+        ::Vector3f rotationRate = ::Vector3f(
+            m_RotationRate.m_Value(0),
+            m_RotationRate.m_Value(1),
+            m_RotationRate.m_Value(2)
         );
         #else
-        ::Vector3f magneticField = ::Vector3f(0.0f, 10.0f, 0.0f);
+        ::Vector3f rotationRate = ::Vector3f();
+        #endif
+        
+        #if EKF_USE_MF
+        ::Vector3f magneticField = ::Vector3f(
+            -m_MagneticField.m_Value(0),
+            -m_MagneticField.m_Value(1),
+            -m_MagneticField.m_Value(2)
+        );
+        #else
+        ::Vector3f magneticField = ::Vector3f();//::Vector3f(0.0f, 10.0f, 0.0f);
         #endif
         
         
         #if EKF_USE_BA
-        float baroHeight = usd.baroPressure;
+        float baroHeight = -m_RelativeAltitude.m_Value;
         #else
-        float baroHeight = 10.0f;
+        float baroHeight = 0.0f;
         #endif
         
-        
-        if(m_IMUStartTime == base::TimePoint::min())
-        {
-            m_IMUStartTime = m_IMUTime = usd.time;
-            m_EKF.angRate = angRate;
-            m_EKF.accel = velocityRate;
-            m_EKF.magData = magneticField;
-            
-            return base::makeErrorCode(base::kENoError);
-        }
-        
-        base::TimeDuration dT = usd.time - m_IMUTime;
-        base::TimeDuration time = usd.time - m_IMUStartTime;
-        m_IMUTime = usd.time;
-        
-        m_EKFContext.time_us = chrono::duration_cast<chrono::microseconds>(time).count() + 50000;
+        m_EKFContext.time_us = std::lround(1.0e+6f*m_Time.m_Value);
         uint32_t const time_ms = m_EKFContext.getMillis();
-        float deltaT = 1.0e-6f*chrono::duration_cast<chrono::microseconds>(dT).count();
         
-        m_EKF.dtIMU = deltaT;
         
-        m_EKF.dAngIMU = 0.5f*(m_EKF.angRate + angRate)*m_EKF.dtIMU;
-        m_EKF.angRate = angRate;
+        m_EKF.dtIMU = m_DT.m_Value;
+        
+        m_EKF.dAngIMU = 0.5f*(m_EKF.angRate + rotationRate)*m_EKF.dtIMU;
+        m_EKF.angRate = rotationRate;
         
         m_EKF.dVelIMU = 0.5f*(m_EKF.accel + velocityRate)*m_EKF.dtIMU;
         m_EKF.accel = velocityRate;
         
         m_EKF.magData = magneticField;
         
-        m_EKF.updateDtHgtFilt(deltaT);
+        m_EKF.updateDtHgtFilt(m_DT.m_Value);
         m_EKF.baroHgt = baroHeight;
-        
-        m_EKF.setOnGround(m_bOnGround);
         
         if(!m_EKF.statesInitialised)
         {
@@ -152,6 +153,9 @@ namespace ekf
         
             m_EKF.InitialiseFilter(initVelNED, 0.0, 0.0, 0.0f, 0.0f);
         }
+        
+        m_EKF.setOnGround(m_bOnGround);
+        
         
         struct ::ekf_status_report ekfReport;
         int ekfCheck = m_EKF.CheckAndBound(&ekfReport);
@@ -178,6 +182,10 @@ namespace ekf
             m_EKFCovariancePredDT = 0.0f;
         }
         
+        m_EKF.globalTimeStamp_ms = time_ms;
+        
+        //opt flow fusion
+        m_EKF.fuseOptFlowData = false;
         
         //gps fusion
         m_EKF.fuseVelData = false;
@@ -196,6 +204,7 @@ namespace ekf
         //m_EKF.globalTimeStamp_ms = chrono::duration_cast<chrono::milliseconds>(m_IMUDuration).count();
     
         
+        #if 0
         //mag fusion
         m_EKF.fuseMagData = true;
 		m_EKF.RecallStates(m_EKF.statesAtMagMeasTime, time_ms - 20); // Assume 50 msec avg delay for magnetometer data
@@ -204,26 +213,27 @@ namespace ekf
 		m_EKF.FuseMagnetometer();
 		m_EKF.FuseMagnetometer();
 		m_EKF.FuseMagnetometer();
+        #else
+        m_EKF.fuseMagData = false;
+        #endif
         
         //airspeed fusion
         m_EKF.fuseVtasData = false;
         
-        attitude = Quaternionf(m_EKF.states[0], m_EKF.states[1], m_EKF.states[2], m_EKF.states[3]);
-        velocity = Vec3f(m_EKF.states[4], m_EKF.states[5], m_EKF.states[6]);
-        position = Vec3f(m_EKF.states[7], m_EKF.states[8], m_EKF.states[9]);
+        m_Attitude.m_Value = Quaternionf(m_EKF.states[0], m_EKF.states[1], m_EKF.states[2], m_EKF.states[3]);
+        m_Velocity.m_Value = Vec3f(m_EKF.states[4], m_EKF.states[5], m_EKF.states[6]);
+        m_Position.m_Value = Vec3f(m_EKF.states[7], m_EKF.states[8], m_EKF.states[9]);
         
-        roationRateBias = Vec3f(m_EKF.states[10], m_EKF.states[11], m_EKF.states[12]);
-        velocityRateZBias = m_EKF.states[13];
-        wind = Vec2f(m_EKF.states[14], m_EKF.states[15]);
+        //roationRateBias = Vec3f(m_EKF.states[10], m_EKF.states[11], m_EKF.states[12]);
+        //velocityRateZBias = m_EKF.states[13];
+        //wind = Vec2f(m_EKF.states[14], m_EKF.states[15]);
         
-        earthMagneticField = Vec3f(m_EKF.states[16], m_EKF.states[17], m_EKF.states[18]);
-        bodyMagneticField = Vec3f(m_EKF.states[19], m_EKF.states[20], m_EKF.states[21]);
+        //earthMagneticField = Vec3f(m_EKF.states[16], m_EKF.states[17], m_EKF.states[18]);
+        //bodyMagneticField = Vec3f(m_EKF.states[19], m_EKF.states[20], m_EKF.states[21]);
         
         return base::makeErrorCode(base::kENoError);
     }
 
-} //namespace control
+} //namespace ekf
 } //namespace control
 } //namespace uquad
-
-UQUAD_BASE_REGISTER_OBJECT(uquad::control::ekf::PoseEstimation, uquad::control::SystemLibrary)

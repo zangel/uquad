@@ -2,7 +2,6 @@
 #define UQUAD_CONTROL_LOG_H
 
 #include "Config.h"
-#include "../base/Log.h"
 
 #define UQUAD_CONTROL_LOG(level) UQUAD_BASE_LOG_MODULE(level, "control")
 

@@ -2,8 +2,8 @@
 #define UQUAD_CONTROL_EKF2_POSE_ESTIMATION_H
 
 #include "../PoseEstimation.h"
-#include "EKF.h"
-
+//#include "EKF.h"
+#include "ecl/EKF/ekf.h"
 
 namespace uquad
 {
@@ -30,22 +30,33 @@ namespace ekf2
         
         bool isValid() const;
         
-        system::error_code prepare();
-        bool isPrepared() const;
-        void unprepare();
+    protected:
+        system::error_code prepare(asio::yield_context yctx);
+        void unprepare(asio::yield_context yctx);
+        system::error_code update(asio::yield_context yctx);
         
-        system::error_code processUQuadSensorsData(hal::UQuadSensorsData const &usd);
         
     private:
-        bool m_bPrepared;
+        DefaultInputSignal<DT> m_DT;
+        DefaultInputSignal<Time> m_Time;
+        DefaultInputSignal<VelocityRate> m_VelocityRate;
+        DefaultInputSignal<RotationRate> m_RotationRate;
+        DefaultInputSignal<MagneticField> m_MagneticField;
+        DefaultInputSignal<Altitude> m_RelativeAltitude;
         
-        EKF m_EKF;
+        DefaultOutputSignal<Attitude> m_Attitude;
+        DefaultOutputSignal<Position> m_Position;
+        DefaultOutputSignal<Velocity> m_Velocity;
+        DefaultOutputSignal<MagneticField> m_EarthMagneticField;
         
-        base::TimePoint m_IMUStartTime;
-        base::TimePoint m_IMULastTime;
+        bool m_bOnGround;
+        bool m_bArmed;
         
-        Vec3f m_LastVelRate;
-        Vec3f m_LastAngRate;
+        ::Ekf m_EKF;
+        
+        bool m_LastRatesInitialized;
+        Vec3f m_LastVelocityRate;
+        Vec3f m_LastRotationRate;
     };
     
     

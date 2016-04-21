@@ -1,10 +1,11 @@
-#ifndef CTRLPE_LOCAL_POSEESTIMATION_VIEW_H
-#define CTRLPE_LOCAL_POSEESTIMATION_VIEW_H
+#ifndef CTRLPE_LOCAL_POSE_ESTIMATION_VIEW_H
+#define CTRLPE_LOCAL_POSE_ESTIMATION_VIEW_H
 
 #include "Config.h"
 #include "ui_PoseEstimationView.h"
 
 #include "../common/msg/UQuadSensorsData.h"
+#include "../common/msg/UQuadMotorsPower.h"
 
 
 namespace ctrlpe
@@ -38,11 +39,17 @@ namespace local
         
         
     protected slots:
-        void onResetCalibrationClicked();
-        void onSaveCalibrationClicked();
+        void onAccelerometerCalibrationReset();
+        void onAccelerometerCalibrationSave();
+        void onAccelerometerCalibrationLoad();
+        
+        void onGyroscopeCalibrationReset();
+        void onGyroscopeCalibrationSave();
+        void onGyroscopeCalibrationLoad();
         
     
     private:
+        void setupControlSystem();
         void setupGraphs();
         void replotGraphs();
         void handleUQuadSensorsDataReceived(intrusive_ptr<common::msg::UQuadSensorsData> sd);
@@ -52,7 +59,18 @@ namespace local
         
         
     private:
-        intrusive_ptr<control::PoseEstimation> m_PoseEstimation;
+        control::System m_ControlSystem;
+        control::UQuadSensors m_UQuadSensors;
+        intrusive_ptr< control::TypedOutputSignal< control::Barometer::Altitude > > m_BarometerRelativeAttitude;
+        intrusive_ptr< control::PoseEstimation > m_PoseEstimation;
+        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::Attitude > > m_PoseEstimationAttitude;
+        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::Position > > m_PoseEstimationPosition;
+        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::Velocity > > m_PoseEstimationVelocity;
+        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::MagneticField > > m_PoseEstimationEarthMagneticField;
+        control::AttitudeControlSimple m_AttitudeControlSimple;
+        control::PositionControlSimple m_PositionControlSimple;
+        control::QuadMotorsThrustSimple m_QuadMotorsThrustSimple;
+        intrusive_ptr< control::TypedOutputSignal< control::QuadMotorsThrust::Motors > > m_QuadMotorsThrustMotors;
         
         fast_mutex m_UQuadSensorsDataGuard;
         std::list< intrusive_ptr<common::msg::UQuadSensorsData> > m_UQuadSensorsData;
@@ -63,10 +81,11 @@ namespace local
         
         fast_mutex m_GraphsGuard;
         base::TimePoint m_SensorsFirstTS;
+        base::TimePoint m_SensorsLastTS;
     };
     
     
 } //namespace local
 } //namespace ctrlpe
 
-#endif //CTRLPE_LOCAL_POSEESTIMATION_VIEW_H
+#endif //CTRLPE_LOCAL_POSE_ESTIMATION_VIEW_H

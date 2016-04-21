@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include <uquad/control/SystemLibrary.h>
+#include <uquad/control/BlockLibrary.h>
 #include <uquad/control/PoseEstimation.h>
 
 using namespace uquad;
@@ -12,7 +12,7 @@ void testPoseEstimation(intrusive_ptr<control::PoseEstimation> const &pe)
 
 BOOST_AUTO_TEST_CASE(PoseEstimation)
 {
-	SI(control::SystemLibrary).enumerateRegistries<control::PoseEstimation>([](intrusive_ptr<control::PoseEstimation::Registry> const &registry) -> bool
+	SI(control::BlockLibrary).enumerateRegistries<control::PoseEstimation>([](intrusive_ptr<control::PoseEstimation::Registry> const &registry) -> bool
 	{
         std::cout << registry->name << std::endl;
 		BOOST_TEST_MESSAGE("testing pose estimation " << registry->name << "...");

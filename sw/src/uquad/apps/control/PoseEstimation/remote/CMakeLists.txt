@@ -5,6 +5,8 @@ uquad_add_executable(PoseEstimationRemote
     Application.cpp
 	../common/msg/UQuadSensorsData.h
 	../common/msg/UQuadSensorsData.cpp
+    ../common/msg/UQuadMotorsPower.h
+	../common/msg/UQuadMotorsPower.cpp
     main.cpp
 )
 

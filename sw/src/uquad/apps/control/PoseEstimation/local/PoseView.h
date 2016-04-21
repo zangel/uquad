@@ -21,6 +21,7 @@ namespace local
         
         void setUQuadAttitude(QQuaternion quat);
         void setMagneticField(QVector3D vec);
+        void setMotorsThrust(QVector4D mt);
         
     protected:
         void drawView();
@@ -28,6 +29,8 @@ namespace local
     private:
         QQuaternion m_UQuadAttitude;
         QVector3D m_MagneticField;
+        QVector4D m_MotorsThrust;
+        
     };
     
     

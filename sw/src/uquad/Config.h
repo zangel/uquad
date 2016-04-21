@@ -18,6 +18,12 @@
 
 #include <boost/smart_ptr/intrusive_ref_counter.hpp>
 #include <boost/thread.hpp>
+#include <boost/thread/lock_types.hpp>
+#include <boost/thread/lock_traits.hpp>
+#include <boost/thread/lockable_adapter.hpp>
+#include <boost/thread/strict_lock.hpp>
+
+
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -45,6 +51,7 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/atomic.hpp>
 #include <boost/dynamic_bitset.hpp>
+
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>

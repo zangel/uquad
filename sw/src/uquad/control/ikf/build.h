@@ -54,7 +54,7 @@
 // on the processor speed and number of algorithms executing in parallel.
 //#define SENSORFS                50         // int32: frequency (Hz) of gyro sensor sampling process
 //#define OVERSAMPLE_RATIO        1			// int32: accel and mag sampling and algorithms run at SENSORFS / OVERSAMPLE_RATIO Hz
-#define MAX_OVERSAMPLE_RATIO    32
+//#define MAX_OVERSAMPLE_RATIO    32
 
 
 #endif // UQUAD_CONTROL_IKF_BUILD_H

@@ -96,7 +96,7 @@ struct AccelSensor
 {
 	float fGsAvg[3];                            // averaged measurement (g)
 	float fgPerCount;                           // g per count
-	int16 iGsBuffer[MAX_OVERSAMPLE_RATIO][3];	// buffered measurements (counts)
+	int16 iGsBuffer[3];                         // buffered measurements (counts)
 	int16 iGs[3];                               // most recent unaveraged measurement (counts)
 	int16 iGsAvg[3];                            // averaged measurement (counts)
 	int16 iCountsPerg;                          // counts per g
@@ -110,7 +110,7 @@ struct MagSensor
 	float fBcAvg[3];                            // averaged calibrated measurement (uT)
 	float fuTPerCount;                          // uT per count
 	float fCountsPeruT;                         // counts per uT
-	int16 iBsBuffer[MAX_OVERSAMPLE_RATIO][3];	// buffered uncalibrated measurement (counts)
+	int16 iBsBuffer[3];                         // buffered uncalibrated measurement (counts)
 	int16 iBs[3];                               // most recent unaveraged uncalibrated measurement (counts)
 	int16 iBsAvg[3];                            // averaged uncalibrated measurement (counts)
 	int16 iBcAvg[3];                            // averaged calibrated measurement (counts)
@@ -122,7 +122,7 @@ struct MagSensor
 struct GyroSensor
 {
 	float fDegPerSecPerCount;                   // deg/s per count
-	int16 iYsBuffer[MAX_OVERSAMPLE_RATIO][3];	// buffered sensor frame measurements (counts)
+	int16 iYsBuffer[3];                         // buffered sensor frame measurements (counts)
 	int16 iCountsPerDegPerSec;                  // counts per deg/s
 	int16 iYs[3];                               // most recent sensor frame measurement (counts)
 	uint8 iWhoAmI;                              // sensor whoami
@@ -130,8 +130,7 @@ struct GyroSensor
 
 struct SV_Base
 {
-    int32 iSensorFS;
-    int32 iOversampleRatio;
+    float fSensorDT;
 };
 
 // 1DOF pressure state vector structure

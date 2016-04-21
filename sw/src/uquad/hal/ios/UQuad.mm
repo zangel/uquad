@@ -116,8 +116,8 @@ namespace ios
                 withHandler:^(CMAltitudeData *altitudeData, NSError *error)
                 {
                     m_CMSensorsReadyFlags |= 0x08;
-                    //m_CMSensorsData.baroPressure = altitudeData.pressure.floatValue;
-                    m_CMSensorsData.baroPressure = altitudeData.relativeAltitude.floatValue;
+                    m_CMSensorsData.baroPressure = altitudeData.pressure.floatValue;
+                    //m_CMSensorsData.baroPressure = altitudeData.relativeAltitude.floatValue;
                 }
             ];
         }

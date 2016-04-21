@@ -10,17 +10,17 @@ namespace control
 {
     namespace
     {
-        static uint64_t const points_level0_shift = 0;
-        static std::bitset<64> const points_level0_mask(((1 << AccelerometerCalibration::POINTS_COUNT_L0) - 1) << points_level0_shift);
+        static uint64_t const direction_level0_shift = 0;
+        static std::bitset<64> const direction_level0_mask(((1 << AccelerometerCalibration::DIRECTION_COUNT_L0) - 1) << direction_level0_shift);
         
-        static uint64_t const points_level1_shift = AccelerometerCalibration::POINTS_COUNT_L0;
-        static std::bitset<64> const points_level1_mask(((1 << AccelerometerCalibration::POINTS_COUNT_L1) - 1) << points_level1_shift);
+        static uint64_t const direction_level1_shift = AccelerometerCalibration::DIRECTION_COUNT_L0;
+        static std::bitset<64> const direction_level1_mask(((1 << AccelerometerCalibration::DIRECTION_COUNT_L1) - 1) << direction_level1_shift);
         
-        static uint64_t const points_level2_shift = AccelerometerCalibration::POINTS_COUNT_L0 + AccelerometerCalibration::POINTS_COUNT_L1;
-        static std::bitset<64> const points_level2_mask(((1 << AccelerometerCalibration::POINTS_COUNT_L2) - 1) << points_level2_shift);
+        static uint64_t const direction_level2_shift = AccelerometerCalibration::DIRECTION_COUNT_L0 + AccelerometerCalibration::DIRECTION_COUNT_L1;
+        static std::bitset<64> const direction_level2_mask(((1 << AccelerometerCalibration::DIRECTION_COUNT_L2) - 1) << direction_level2_shift);
     }
     
-    std::size_t AccelerometerCalibration::indexOfDirection(Vec3f dir)
+    std::size_t AccelerometerCalibration::directionIndex(Vec3f dir)
     {
         int iX = lround(dir.x()*10);
         int iY = lround(dir.y()*10);
@@ -30,7 +30,7 @@ namespace control
         int iSY = copysign(1.0f, dir.y());
         int iSZ = copysign(1.0f, dir.z());
         
-        std::size_t index = POINTS_COUNT;
+        std::size_t index = DIRECTION_COUNT;
         
         //axes
         if(std::abs(iX) == 10 && !iY && !iZ)
@@ -50,30 +50,30 @@ namespace control
         else
         if(!iZ && std::abs(iX) == 7 && std::abs(iY) == 7)
         {
-            index = POINTS_COUNT_L0 + POINTS_COUNT_L1 + 3 - ((iSY + 1) + ((iSX + 1) >> 1));
+            index = DIRECTION_COUNT_L0 + DIRECTION_COUNT_L1 + 3 - ((iSY + 1) + ((iSX + 1) >> 1));
         }
         else
         if(!iY && std::abs(iX) == 7 && std::abs(iZ) == 7)
         {
-            index = POINTS_COUNT_L0 + POINTS_COUNT_L1 + 7 - ((iSZ + 1) + ((iSX + 1) >> 1));
+            index = DIRECTION_COUNT_L0 + DIRECTION_COUNT_L1 + 7 - ((iSZ + 1) + ((iSX + 1) >> 1));
         }
         else
         if(!iX && std::abs(iY) == 7 && std::abs(iZ) == 7)
         {
-            index = POINTS_COUNT_L0 + POINTS_COUNT_L1 + 11 - ((iSZ + 1) + ((iSY + 1) >> 1));
+            index = DIRECTION_COUNT_L0 + DIRECTION_COUNT_L1 + 11 - ((iSZ + 1) + ((iSY + 1) >> 1));
         }
         else
         if(std::abs(iX) == 6 && std::abs(iY) == 6 && std::abs(iZ) == 6)
         {
-            index = POINTS_COUNT_L0 + POINTS_COUNT_L1 - 1 - (((iSZ + 1) << 1) + (iSY + 1) + ((iSX + 1) >> 1));
+            index = DIRECTION_COUNT_L0 + DIRECTION_COUNT_L1 - 1 - (((iSZ + 1) << 1) + (iSY + 1) + ((iSX + 1) >> 1));
         }
 
         return index;
     }
     
-    Vec3f AccelerometerCalibration::directionOfIndex(std::size_t index)
+    Vec3f AccelerometerCalibration::direction(std::size_t index)
     {
-        if(index < POINTS_COUNT_L0)
+        if(index < DIRECTION_COUNT_L0)
         {
             float const sign = -int((index & 1) << 1) + 1;
             switch((index & 6) >> 1)
@@ -86,9 +86,9 @@ namespace control
             }
         }
         
-        if(index < (POINTS_COUNT_L0 + POINTS_COUNT_L1))
+        if(index < (DIRECTION_COUNT_L0 + DIRECTION_COUNT_L1))
         {
-            std::size_t const offset = index - POINTS_COUNT_L0;
+            std::size_t const offset = index - DIRECTION_COUNT_L0;
             
             float const signX = -int((offset & 1) << 1) + 1;
             float const signY = -int((offset & 2) << 0) + 1;
@@ -98,7 +98,7 @@ namespace control
         }
         
         {
-            std::size_t const offset = index - POINTS_COUNT_L0 - POINTS_COUNT_L1;
+            std::size_t const offset = index - DIRECTION_COUNT_L0 - DIRECTION_COUNT_L1;
             
             float const sign0 = -int((offset & 1) << 1) + 1;
             float const sign1 = -int((offset & 2) << 0) + 1;
@@ -116,15 +116,15 @@ namespace control
     
     
     AccelerometerCalibration::AccelerometerCalibration()
-        : m_PointsFlags(0)
-        , m_Points()
-        , m_PointsQuality(0.0f)
-        , m_StatsWindowSize(5)
+        : m_StatsWindowSize(5)
         , m_StatsSD(5.0e-3f)
         , m_StatsX(accumulators::tag::rolling_window::window_size = m_StatsWindowSize)
         , m_StatsY(accumulators::tag::rolling_window::window_size = m_StatsWindowSize)
         , m_StatsZ(accumulators::tag::rolling_window::window_size = m_StatsWindowSize)
-        , m_MeanPoint(Vec3f::Zero())
+        , m_MeanSample(Vec3f::Zero())
+        , m_DirectionSampled(0)
+        , m_Samples()
+        , m_SamplesQuality(0.0f)
         , m_MapTransform(Transform3af::Identity())
         , m_CalibrationTransform(Transform3af::Identity())
     {
@@ -144,28 +144,16 @@ namespace control
         m_StatsSD = ssd;
     }
     
-    void AccelerometerCalibration::reset()
+    void AccelerometerCalibration::processSample(Vec3f sample)
     {
-        m_PointsFlags.reset();
-        m_PointsQuality = 0.0f;
-        m_StatsX = real_stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
-        m_StatsY = real_stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
-        m_StatsZ = real_stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
-        m_MeanPoint = Vec3f::Zero();
-        m_MapTransform.setIdentity();
-        m_CalibrationTransform.setIdentity();
-    }
-    
-    void AccelerometerCalibration::process(Vec3f point)
-    {
-        m_StatsX(point.x());
-        m_StatsY(point.y());
-        m_StatsZ(point.z());
+        m_StatsX(sample.x());
+        m_StatsY(sample.y());
+        m_StatsZ(sample.z());
         
         if(accumulators::rolling_count(m_StatsX) < m_StatsWindowSize)
             return;
         
-        m_MeanPoint = Vec3f(
+        m_MeanSample = Vec3f(
             accumulators::rolling_mean(m_StatsX),
             accumulators::rolling_mean(m_StatsY),
             accumulators::rolling_mean(m_StatsZ)
@@ -179,28 +167,66 @@ namespace control
             return;
         
         //reset stats
-        m_StatsX = real_stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
-        m_StatsY = real_stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
-        m_StatsZ = real_stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
+        m_StatsX = stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
+        m_StatsY = stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
+        m_StatsZ = stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
         
-        Vec3f dir(m_MeanPoint);
+        Vec3f dir(m_MeanSample);
         dir.normalize();
         
-        std::size_t index = indexOfDirection(dir);
+        std::size_t index = directionIndex(dir);
         
         
-        if(index >= POINTS_COUNT)
+        if(index >= DIRECTION_COUNT)
             return;
 
-        m_PointsFlags[index] = true;
-        m_Points[index] = m_MeanPoint;
+        m_DirectionSampled[index] = true;
+        m_Samples[index] = m_MeanSample;
         
-        updatePointsQuality();
+        updateSamplesQuality();
+    }
+    
+    
+    bool AccelerometerCalibration::isDirectionSampled(std::size_t index) const
+    {
+        return m_DirectionSampled.test(index);
+    }
+    
+    Vec3f AccelerometerCalibration::meanSample() const
+    {
+        return m_MeanSample;
+    }
+    
+    void AccelerometerCalibration::reset()
+    {
+        m_DirectionSampled.reset();
+        m_SamplesQuality = 0.0f;
+        m_StatsX = stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
+        m_StatsY = stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
+        m_StatsZ = stats_t(accumulators::tag::rolling_window::window_size = m_StatsWindowSize);
+        m_MeanSample = Vec3f::Zero();
+        m_MapTransform.setIdentity();
+        m_CalibrationTransform.setIdentity();
+    }
+    
+    float AccelerometerCalibration::samplesQuality() const
+    {
+        return m_SamplesQuality;
+    }
+    
+    Transform3af const& AccelerometerCalibration::mapTransform() const
+    {
+        return m_MapTransform;
+    }
+    
+    Transform3af const& AccelerometerCalibration::calibrationTransform() const
+    {
+        return m_CalibrationTransform;
     }
     
     void AccelerometerCalibration::update()
     {
-        if(m_PointsQuality < 0.5f)
+        if(m_SamplesQuality < 0.5f)
             return;
         
         #if 0
@@ -238,10 +264,10 @@ namespace control
         m_CalibrationTransform.translate(-center);
         #else
         std::vector< math::geom::Ellipsoidf::Vector3 > points;
-        for(std::size_t p = 0; p < POINTS_COUNT; ++p)
+        for(std::size_t p = 0; p < DIRECTION_COUNT; ++p)
         {
-            if(!m_PointsFlags[p]) continue;
-            points.push_back(m_Points[p]);
+            if(!m_DirectionSampled[p]) continue;
+            points.push_back(m_Samples[p]);
         }
         math::geom::Ellipsoidf ellipsoid = math::geom::Ellipsoidf::leastSquaresFit(points);
         m_MapTransform = ellipsoid.mapTransform();
@@ -257,14 +283,14 @@ namespace control
         ar & m_CalibrationTransform;
     }
     
-    void AccelerometerCalibration::updatePointsQuality()
+    void AccelerometerCalibration::updateSamplesQuality()
     {
-        m_PointsQuality = 0.0f;
-        if((m_PointsFlags & points_level0_mask) == points_level0_mask)
-            m_PointsQuality += 0.5f;
+        m_SamplesQuality = 0.0f;
+        if((m_DirectionSampled & direction_level0_mask) == direction_level0_mask)
+            m_SamplesQuality += 0.5f;
         
-        m_PointsQuality += 0.3f * static_cast<float>((m_PointsFlags & points_level1_mask).count())/POINTS_COUNT_L1;
-        m_PointsQuality += 0.2f * static_cast<float>((m_PointsFlags & points_level2_mask).count())/POINTS_COUNT_L2;
+        m_SamplesQuality += 0.3f * static_cast<float>((m_DirectionSampled & direction_level1_mask).count())/DIRECTION_COUNT_L1;
+        m_SamplesQuality += 0.2f * static_cast<float>((m_DirectionSampled & direction_level2_mask).count())/DIRECTION_COUNT_L2;
     }
     
 } //namespace control

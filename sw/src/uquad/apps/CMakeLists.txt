@@ -9,3 +9,4 @@
 add_subdirectory(camera-server)
 add_subdirectory(cv)
 add_subdirectory(control)
+add_subdirectory(uQuadRC)

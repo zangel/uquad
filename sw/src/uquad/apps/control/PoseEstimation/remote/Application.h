@@ -7,6 +7,8 @@
 #include <uquad/hal/UQuad.h>
 #include <uquad/comm/RemoteControlServer.h>
 #include "../common/msg/UQuadSensorsData.h"
+#include "../common/msg/UQuadMotorsPower.h"
+
 
 namespace ctrlpe
 {
@@ -31,6 +33,7 @@ namespace remote
         
     protected:
         void onRemoteControlMessageReceived(intrusive_ptr<comm::Message> msg);
+        void handleUQuadMotorsPowerReceived(intrusive_ptr<common::msg::UQuadMotorsPower> mp);
         void onUQuadSensorsReady();
         
         

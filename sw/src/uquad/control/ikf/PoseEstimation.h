@@ -2,6 +2,7 @@
 #define UQUAD_CONTROL_IKF_POSE_ESTIMATION_H
 
 #include "../PoseEstimation.h"
+#include "../MagnetometerCalibration.h"
 
 #include "magnetic.h"
 #include "types.h"
@@ -33,14 +34,22 @@ namespace ikf
         
         bool isValid() const;
         
-        system::error_code prepare();
-        bool isPrepared() const;
-        void unprepare();
         
-        system::error_code processUQuadSensorsData(hal::UQuadSensorsData const &usd);
+    protected:
+        system::error_code prepare(asio::yield_context yctx);
+        void unprepare(asio::yield_context yctx);
+        system::error_code update(asio::yield_context yctx);
         
     private:
-        bool m_bPrepared;
+        DefaultInputSignal<DT> m_DT;
+        DefaultInputSignal<VelocityRate> m_VelocityRate;
+        DefaultInputSignal<RotationRate> m_RotationRate;
+        DefaultInputSignal<MagneticField> m_MagneticField;
+        
+        DefaultOutputSignal<Attitude> m_Attitude;
+        DefaultOutputSignal<Position> m_Position;
+        DefaultOutputSignal<Velocity> m_Velocity;
+        DefaultOutputSignal<RotationRate> m_RotationRateEstimated;
         
         uint32_t m_LoopCount;
         
@@ -57,6 +66,8 @@ namespace ikf
         SV_6DOF_GY_KALMAN m_6DOFState;
         #endif
         //SV_1DOF_P_BASIC m_PressureState;
+        
+        MagnetometerCalibration m_MagnetometerCalibration;
     };
     
     

@@ -10,8 +10,15 @@
 #include <uquad/comm/Message.h>
 #include <uquad/comm/RemoteControl.h>
 
-#include <uquad/control/PoseEstimation.h>
 #include <uquad/control/AccelerometerCalibration.h>
+#include <uquad/control/GyroscopeCalibration.h>
+#include <uquad/control/MagnetometerCalibration.h>
+#include <uquad/control/System.h>
+#include <uquad/control/UQuadSensors.h>
+#include <uquad/control/PoseEstimation.h>
+#include <uquad/control/AttitudeControlSimple.h>
+#include <uquad/control/PositionControlSimple.h>
+#include <uquad/control/QuadMotorsThrustSimple.h>
 
 #include <QObject>
 #include <QApplication>

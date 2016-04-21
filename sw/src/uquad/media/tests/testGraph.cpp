@@ -19,6 +19,18 @@
 using namespace uquad;
 namespace tt = boost::test_tools;
 
+#define TEST_GRAPH_RUN_METHOD(method)           \
+    done = false;                               \
+    graph->method([&done](system::error_code)   \
+    {                                           \
+        done = true;                            \
+    });                                         \
+    runloop->runUntil([&done]() -> bool         \
+    {                                           \
+        return !done;                           \
+    });
+
+
 BOOST_AUTO_TEST_CASE(GraphEncode)
 {
     intrusive_ptr<base::Runloop> runloop(new base::Runloop());
@@ -68,7 +80,7 @@ BOOST_AUTO_TEST_CASE(GraphEncode)
     
     bool done;
     
-    done = false; graph->start([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(start)
     BOOST_TEST_REQUIRE(graph->isStarted());
     
 #if 0
@@ -76,19 +88,19 @@ BOOST_AUTO_TEST_CASE(GraphEncode)
     BOOST_TEST_REQUIRE(!camera->startRecording());
 #endif
 
-    done = false; graph->resume([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(resume)
     BOOST_TEST_REQUIRE(graph->isRunning());
 
     BOOST_TEST_REQUIRE(!runloop->runFor(chrono::seconds(1)));
 
 #if 1
-    done = false; graph->stop([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(stop)
     BOOST_TEST_REQUIRE(!graph->isStarted());
 
-    done = false; graph->start([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(start)
     BOOST_TEST_REQUIRE(graph->isStarted());
     
-    done = false; graph->resume([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(resume)
     BOOST_TEST_REQUIRE(graph->isRunning());
     
     BOOST_TEST_REQUIRE(!runloop->runFor(chrono::seconds(1)));
@@ -99,7 +111,7 @@ BOOST_AUTO_TEST_CASE(GraphEncode)
     BOOST_TEST_REQUIRE(!camera->stopPreview());
 #endif
     
-    done = false; graph->stop([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(stop)
     BOOST_TEST_REQUIRE(!graph->isStarted());
     
     BOOST_TEST_REQUIRE(!graph->disconnect(videoEncoder, writer));
@@ -110,6 +122,7 @@ BOOST_AUTO_TEST_CASE(GraphEncode)
     BOOST_TEST_REQUIRE(!graph->removeComponent(capture));
     
     BOOST_TEST_REQUIRE(!camera->close());
+    
 }
 
 BOOST_AUTO_TEST_CASE(GraphDecode)
@@ -122,11 +135,9 @@ BOOST_AUTO_TEST_CASE(GraphDecode)
     intrusive_ptr<base::IOStream> readerStream(new base::IOFileStream((base::Application::dataDirectory()/"test.h264").string()));
     BOOST_TEST_REQUIRE(!reader->setStream(readerStream));
     
-    
     intrusive_ptr<media::VideoDecoder> videoDecoder = SI(media::ComponentFactory).createVideoDecoder(media::kVideoCodecTypeH264);
     BOOST_TEST_REQUIRE(videoDecoder);
     BOOST_TEST_REQUIRE(videoDecoder->isValid());
-    
     
     intrusive_ptr<media::Graph> graph(new media::Graph(runloop));
     
@@ -137,15 +148,15 @@ BOOST_AUTO_TEST_CASE(GraphDecode)
     
     bool done;
     
-    done = false; graph->start([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(start)
     BOOST_TEST_REQUIRE(graph->isStarted());
     
-    done = false; graph->resume([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(resume)
     BOOST_TEST_REQUIRE(graph->isRunning());
     
     BOOST_TEST_REQUIRE(!runloop->runFor(chrono::seconds(30)));
     
-    done = false; graph->stop([&done](system::error_code){ done = true; }); runloop->runUntil([&done]() -> bool { return !done; } );
+    TEST_GRAPH_RUN_METHOD(stop)
     BOOST_TEST_REQUIRE(!graph->isStarted());
     
     BOOST_TEST_REQUIRE(!graph->disconnect(reader, videoDecoder));
@@ -153,3 +164,5 @@ BOOST_AUTO_TEST_CASE(GraphDecode)
     BOOST_TEST_REQUIRE(!graph->removeComponent(videoDecoder));
     BOOST_TEST_REQUIRE(!graph->removeComponent(reader));
 }
+
+#undef TEST_GRAPH_RUN_METHOD

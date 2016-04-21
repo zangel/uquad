@@ -11,8 +11,9 @@ set(PoseEstimation_headers
 	PoseEstimationView.h
     View3D.h
     PoseView.h
-    AccelerometerCalibrationView.h
+    CalibrationView.h
     ../common/msg/UQuadSensorsData.h
+    ../common/msg/UQuadMotorsPower.h
 	qcustomplot.h
 )
 
@@ -22,8 +23,9 @@ set(PoseEstimation_sources
 	PoseEstimationView.cpp
     View3D.cpp
     PoseView.cpp
-    AccelerometerCalibrationView.cpp
+    CalibrationView.cpp
     ../common/msg/UQuadSensorsData.cpp
+    ../common/msg/UQuadMotorsPower.cpp
 	qcustomplot.cpp
     main.cpp
 )

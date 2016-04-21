@@ -46,39 +46,20 @@ namespace ikf
 // intialization functions for the sensor fusion algorithms
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-void fInit_1DOF_P_BASIC(struct SV_1DOF_P_BASIC *pthisSV, struct PressureSensor *pthisPressure, float flpftimesecs)
+void fInit_1DOF_P_BASIC(struct SV_1DOF_P_BASIC *pthisSV, struct PressureSensor *pthisPressure)
 {
-	// set algorithm sampling interval (typically 25Hz) and low pass filter
-	// Note: the MPL3115 sensor only updates its output every 512ms and is therefore repeatedly oversampled at 25Hz
-	// but executing the exponenial filter at the 25Hz rate also performs an interpolation giving smoother output.
-	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-	pthisSV->flpf = pthisSV->fdeltat / flpftimesecs;
-	if (pthisSV->flpf > 1.0F)
-	{
-		pthisSV->flpf = 1.0F;
-	}
-
 	// initialize the filters
 	pthisSV->fLPH = pthisPressure->fH;
 	pthisSV->fLPT = pthisPressure->fT;
 
 	// clear the reset flag
 	pthisSV->resetflag = false;
-
-	return;
+    
+    return;
 } // end fInit_1DOF_P_BASIC
 
-void fInit_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pthisAccel, float flpftimesecs)
+void fInit_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pthisAccel)
 {
-	// set algorithm sampling interval (typically 25Hz) 
-	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-
-	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
-	if (flpftimesecs > pthisSV->fdeltat)
-		pthisSV->flpf = pthisSV->fdeltat / flpftimesecs;
-	else
-		pthisSV->flpf = 1.0F;
-
 	// apply the tilt estimation algorithm to set the low pass orientation matrix and quaternion
 	switch (THISCOORDSYSTEM)
 	{
@@ -99,21 +80,12 @@ void fInit_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pth
 
 	// clear the reset flag
 	pthisSV->resetflag = false;
-
-	return;
+    
+    return;
 } // end fInit_3DOF_G_BASIC
 
-void fInit_3DOF_B_BASIC(struct SV_3DOF_B_BASIC *pthisSV, struct MagSensor *pthisMag, float flpftimesecs)
+void fInit_3DOF_B_BASIC(struct SV_3DOF_B_BASIC *pthisSV, struct MagSensor *pthisMag)
 {
-	// set algorithm sampling interval (typically 25Hz) 
-	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-
-	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
-	if (flpftimesecs > pthisSV->fdeltat)
-		pthisSV->flpf = pthisSV->fdeltat / flpftimesecs;
-	else
-		pthisSV->flpf = 1.0F;
-
 	// initialize the low pass filtered magnetometer orientation matrix and quaternion using fBcAvg
 	switch (THISCOORDSYSTEM)
 	{
@@ -138,10 +110,6 @@ void fInit_3DOF_B_BASIC(struct SV_3DOF_B_BASIC *pthisSV, struct MagSensor *pthis
 
 void fInit_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV)
 {
-	// compute the sampling time intervals (secs)
-	pthisSV->fGyrodeltat = 1.0F / (float) pthisSV->iSensorFS;
-	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio * pthisSV->fGyrodeltat;
-
 	// initialize orientation estimate to flat
 	f3x3matrixAeqI(pthisSV->fR);
 	fqAeq1(&(pthisSV->fq));
@@ -152,17 +120,8 @@ void fInit_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV)
 	return;
 } // end fInit_3DOF_Y_BASIC
 
-void fInit_6DOF_GB_BASIC(struct SV_6DOF_GB_BASIC *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag, float flpftimesecs)
+void fInit_6DOF_GB_BASIC(struct SV_6DOF_GB_BASIC *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag)
 {
-	// set algorithm sampling interval (typically 25Hz) 
-	pthisSV->fdeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-
-	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
-	if (flpftimesecs > pthisSV->fdeltat)
-		pthisSV->flpf = pthisSV->fdeltat / flpftimesecs;
-	else
-		pthisSV->flpf = 1.0F;
-
 	// initialize the instantaneous orientation matrix, inclination angle and quaternion
 	switch (THISCOORDSYSTEM)
 	{
@@ -189,13 +148,6 @@ void fInit_6DOF_GB_BASIC(struct SV_6DOF_GB_BASIC *pthisSV, struct AccelSensor *p
 void fInit_6DOF_GY_KALMAN(struct SV_6DOF_GY_KALMAN *pthisSV, struct AccelSensor *pthisAccel)
 {
 	int8 i;				// counter
-
-	// compute and store useful product terms to save floating point calculations later
-	pthisSV->fGyrodeltat = 1.0F / (float) pthisSV->iSensorFS;
-	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-	pthisSV->fAlphaOver2Sq = pthisSV->fAlphaOver2 * pthisSV->fAlphaOver2;
-	pthisSV->fAlphaOver2Qwb = pthisSV->fAlphaOver2 * FQWB_6DOF_GY_KALMAN;
-	pthisSV->fAlphaOver2SqQvYQwb = pthisSV->fAlphaOver2Sq * (FQVY_6DOF_GY_KALMAN + FQWB_6DOF_GY_KALMAN);
 
 	// zero the a posteriori gyro offset and error vectors
 	for (i = CHX; i <= CHZ; i++)
@@ -228,22 +180,12 @@ void fInit_6DOF_GY_KALMAN(struct SV_6DOF_GY_KALMAN *pthisSV, struct AccelSensor 
 } // end fInit_6DOF_GY_KALMAN
 
 // function initializes the 9DOF Kalman filter
-void fInit_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag,
-		struct MagCalibration *pthisMagCal)
+void fInit_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag, struct MagCalibration *pthisMagCal)
 {
 	float fDelta6DOF;		// eCompass estimate of inclination angle returned by least squares eCompass
 	float pfQvGQa;			// accelerometer noise covariance to 1g sphere
 	float fQvBQd;			// magnetometer noise covariances to geomagnetic sphere
 	int8 i;					// counter
-
-	// compute and store useful product terms to save floating point calculations later
-	pthisSV->fGyrodeltat = 1.0F / (float) pthisSV->iSensorFS;
-	pthisSV->fKalmandeltat = (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-	pthisSV->fgKalmandeltat = GTOMSEC2 * pthisSV->fKalmandeltat;
-	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * (float) pthisSV->iOversampleRatio / (float) pthisSV->iSensorFS;
-	pthisSV->fAlphaOver2Sq = pthisSV->fAlphaOver2 * pthisSV->fAlphaOver2;
-	pthisSV->fAlphaOver2Qwb = pthisSV->fAlphaOver2 * FQWB_9DOF_GBY_KALMAN;
-	pthisSV->fAlphaOver2SqQvYQwb = pthisSV->fAlphaOver2Sq * (FQVY_9DOF_GBY_KALMAN + FQWB_9DOF_GBY_KALMAN);
 
 	// zero the a posteriori gyro offset and error vectors
 	for (i = CHX; i <= CHZ; i++)
@@ -268,17 +210,14 @@ void fInit_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSenso
 	switch (THISCOORDSYSTEM)
 	{
 	case NED:
-		fLeastSquareseCompassNED(&(pthisSV->fqPl), pthisMagCal->fB, pthisSV->fDeltaPl, pthisSV->fsinDeltaPl,
-				pthisSV->fcosDeltaPl, &fDelta6DOF, pthisMag->fBcAvg, pthisAccel->fGsAvg, &fQvBQd, &pfQvGQa);
+		fLeastSquareseCompassNED(&(pthisSV->fqPl), pthisMagCal->fB, pthisSV->fDeltaPl, pthisSV->fsinDeltaPl, pthisSV->fcosDeltaPl, &fDelta6DOF, pthisMag->fBcAvg, pthisAccel->fGsAvg, &fQvBQd, &pfQvGQa);
 		break;
 	case ANDROID:
-		fLeastSquareseCompassAndroid(&(pthisSV->fqPl), pthisMagCal->fB, pthisSV->fDeltaPl, pthisSV->fsinDeltaPl,
-				pthisSV->fcosDeltaPl, &fDelta6DOF, pthisMag->fBcAvg, pthisAccel->fGsAvg, &fQvBQd, &pfQvGQa);
+		fLeastSquareseCompassAndroid(&(pthisSV->fqPl), pthisMagCal->fB, pthisSV->fDeltaPl, pthisSV->fsinDeltaPl, pthisSV->fcosDeltaPl, &fDelta6DOF, pthisMag->fBcAvg, pthisAccel->fGsAvg, &fQvBQd, &pfQvGQa);
 		break;
 	case WIN8:
 	default:
-		fLeastSquareseCompassWin8(&(pthisSV->fqPl), pthisMagCal->fB, pthisSV->fDeltaPl, pthisSV->fsinDeltaPl,
-				pthisSV->fcosDeltaPl, &fDelta6DOF, pthisMag->fBcAvg, pthisAccel->fGsAvg, &fQvBQd, &pfQvGQa);
+		fLeastSquareseCompassWin8(&(pthisSV->fqPl), pthisMagCal->fB, pthisSV->fDeltaPl, pthisSV->fsinDeltaPl, pthisSV->fcosDeltaPl, &fDelta6DOF, pthisMag->fBcAvg, pthisAccel->fGsAvg, &fQvBQd, &pfQvGQa);
 		break;
 	}
 	fRotationMatrixFromQuaternion(pthisSV->fRPl, &(pthisSV->fqPl));
@@ -303,11 +242,20 @@ void fInit_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSenso
 // 1DOF pressure function
 void fRun_1DOF_P_BASIC(struct SV_1DOF_P_BASIC *pthisSV, struct PressureSensor *pthisPressure)
 {
+    // set algorithm sampling interval (typically 25Hz) and low pass filter
+	// Note: the MPL3115 sensor only updates its output every 512ms and is therefore repeatedly oversampled at 25Hz
+	// but executing the exponenial filter at the 25Hz rate also performs an interpolation giving smoother output.
+	pthisSV->fdeltat = pthisSV->fSensorDT;
+	pthisSV->flpf = pthisSV->fdeltat / 1.5F;
+	if (pthisSV->flpf > 1.0F)
+	{
+		pthisSV->flpf = 1.0F;
+	}
+    
 	// if requested, do a reset (with low pass filter time constant 1.5s) and return
 	if (pthisSV->resetflag)
 	{
-		fInit_1DOF_P_BASIC(pthisSV, pthisPressure, 1.5F);
-		return;
+		fInit_1DOF_P_BASIC(pthisSV, pthisPressure);
 	}
 
 	// exponentially low pass filter the pressure and temperature.
@@ -322,11 +270,19 @@ void fRun_1DOF_P_BASIC(struct SV_1DOF_P_BASIC *pthisSV, struct PressureSensor *p
 // 3DOF orientation function which calls tilt functions and implements low pass filters
 void fRun_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pthisAccel)
 {
+    // set algorithm sampling interval (typically 25Hz) 
+	pthisSV->fdeltat = pthisSV->fSensorDT;
+
+	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
+	if (0.5F > pthisSV->fdeltat)
+		pthisSV->flpf = pthisSV->fdeltat / 0.5F;
+	else
+		pthisSV->flpf = 1.0F;
+    
 	// if requested, do a reset (with low pass filter time constant 0.5s) and return
 	if (pthisSV->resetflag)
 	{
-		fInit_3DOF_G_BASIC(pthisSV, pthisAccel, 0.5F);
-		return;
+		fInit_3DOF_G_BASIC(pthisSV, pthisAccel);
 	}
 
 	// apply the tilt estimation algorithm to get the instantaneous orientation matrix and quaternion
@@ -379,11 +335,19 @@ void fRun_3DOF_G_BASIC(struct SV_3DOF_G_BASIC *pthisSV, struct AccelSensor *pthi
 // 2D automobile eCompass
 void fRun_3DOF_B_BASIC(struct SV_3DOF_B_BASIC *pthisSV, struct MagSensor *pthisMag)
 {
+    // set algorithm sampling interval (typically 25Hz) 
+	pthisSV->fdeltat = pthisSV->fSensorDT;
+
+	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
+	if (1.0F > pthisSV->fdeltat)
+		pthisSV->flpf = pthisSV->fdeltat;
+	else
+		pthisSV->flpf = 1.0F;
+    
 	// if requested, do a reset (with low pass filter time constant 1.0s) and return
 	if (pthisSV->resetflag)
 	{
-		fInit_3DOF_B_BASIC(pthisSV, pthisMag, 1.0F);
-		return;
+		fInit_3DOF_B_BASIC(pthisSV, pthisMag);
 	}
 
 	// calculate the 3DOF magnetometer orientation matrix and quaternion from fBcAvg
@@ -433,32 +397,31 @@ void fRun_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV, struct GyroSensor *pthis
 {
 	struct fquaternion ftmpq;					// scratch quaternion
 	float ftmpA3x1[3];							// rotation vector
-	int8 i, j;									// loop counters
+	int8 i;                                     // loop counters
+    
+    // compute the sampling time intervals (secs)
+	pthisSV->fGyrodeltat = pthisSV->fSensorDT;
+	pthisSV->fdeltat = pthisSV->fGyrodeltat;
 
 	// if requested, do a reset and return
 	if (pthisSV->resetflag)
 	{
 		fInit_3DOF_Y_BASIC(pthisSV);
-		return;
 	}
 
-	// integrate the buffered high frequency (typically 200Hz) gyro readings
-	for (j = 0; j < pthisSV->iOversampleRatio; j++)
-	{
-		// compute the incremental fast (typically 200Hz) rotation vector rvec (deg)
-		for (i = CHX; i <= CHZ; i++)
-		{
-			pthisSV->fOmega[i] = (float)pthisGyro->iYsBuffer[j][i] * pthisGyro->fDegPerSecPerCount;
-			ftmpA3x1[i] = pthisSV->fOmega[i] * pthisSV->fGyrodeltat;
-		}
+    // compute the incremental fast (typically 200Hz) rotation vector rvec (deg)
+    for (i = CHX; i <= CHZ; i++)
+    {
+        pthisSV->fOmega[i] = (float)pthisGyro->iYsBuffer[i] * pthisGyro->fDegPerSecPerCount;
+        ftmpA3x1[i] = pthisSV->fOmega[i] * pthisSV->fGyrodeltat;
+    }
 
-		// compute the incremental quaternion fDeltaq from the rotation vector
-		fQuaternionFromRotationVectorDeg(&ftmpq, ftmpA3x1, 1.0F);
+    // compute the incremental quaternion fDeltaq from the rotation vector
+    fQuaternionFromRotationVectorDeg(&ftmpq, ftmpA3x1, 1.0F);
 
-		// incrementally rotate the orientation quaternion fq
-		qAeqAxB(&(pthisSV->fq), &ftmpq);
-	}
-
+    // incrementally rotate the orientation quaternion fq
+    qAeqAxB(&(pthisSV->fq), &ftmpq);
+	
 	// re-normalize the orientation quaternion to stop error propagation
 	// the renormalization function ensures that the scalar component q0 is non-negative
 	fqAeqNormqA(&(pthisSV->fq));
@@ -493,11 +456,20 @@ void fRun_3DOF_Y_BASIC(struct SV_3DOF_Y_BASIC *pthisSV, struct GyroSensor *pthis
 // 6DOF eCompass orientation function
 void fRun_6DOF_GB_BASIC(struct SV_6DOF_GB_BASIC *pthisSV, struct MagSensor *pthisMag, struct AccelSensor *pthisAccel)
 {
+    // set algorithm sampling interval (typically 25Hz) 
+	pthisSV->fdeltat = pthisSV->fSensorDT;
+
+	// set low pass filter constant with maximum value 1.0 (all pass) decreasing to 0.0 (increasing low pass)
+	if (1.0F > pthisSV->fdeltat)
+		pthisSV->flpf = pthisSV->fdeltat;
+	else
+		pthisSV->flpf = 1.0F;
+
+
 	// if requested, do a reset (with low pass filter time constant 1.0s) and return
 	if (pthisSV->resetflag)
 	{
-		fInit_6DOF_GB_BASIC(pthisSV, pthisAccel, pthisMag, 1.0F);
-		return;
+		fInit_6DOF_GB_BASIC(pthisSV, pthisAccel, pthisMag);
 	}
 
 	// call the eCompass algorithm to get the instantaneous orientation matrix, inclination angle and quanternion
@@ -566,31 +538,34 @@ void fRun_6DOF_GY_KALMAN(struct SV_6DOF_GY_KALMAN *pthisSV, struct AccelSensor *
 	int8 iColInd[3];
 	int8 iRowInd[3];
 	int8 iPivot[3];
-
+    
+    // compute and store useful product terms to save floating point calculations later
+	pthisSV->fGyrodeltat = pthisSV->fSensorDT;
+	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * pthisSV->fSensorDT;
+	pthisSV->fAlphaOver2Sq = pthisSV->fAlphaOver2 * pthisSV->fAlphaOver2;
+	pthisSV->fAlphaOver2Qwb = pthisSV->fAlphaOver2 * FQWB_6DOF_GY_KALMAN;
+	pthisSV->fAlphaOver2SqQvYQwb = pthisSV->fAlphaOver2Sq * (FQVY_6DOF_GY_KALMAN + FQWB_6DOF_GY_KALMAN);
+    
 	// if requested, do a reset initialization with no further processing
 	if (pthisSV->resetflag)
 	{
 		fInit_6DOF_GY_KALMAN(pthisSV, pthisAccel);
-		return;
 	}
 
 	// compute the a priori orientation quaternion fqMi by integrating the buffered gyro measurements
 	fqMi = pthisSV->fqPl;
-	// loop over all the buffered gyroscope measurements
-	for (j = 0; j < pthisSV->iOversampleRatio; j++)
-	{
-		// calculate the instantaneous angular velocity (after subtracting the gyro offset) and rotation vector ftmpMi3x1
-		for (i = CHX; i <= CHZ; i++)
-		{
-			pthisSV->fOmega[i] = (float)pthisGyro->iYsBuffer[j][i] * pthisGyro->fDegPerSecPerCount - pthisSV->fbPl[i];
-			ftmpMi3x1[i] = pthisSV->fOmega[i] * pthisSV->fGyrodeltat;
-		}
-		// convert the rotation vector ftmpMi3x1 to a rotation quaternion ftmpq
-		fQuaternionFromRotationVectorDeg(&ftmpq, ftmpMi3x1, 1.0F);
-		// integrate the gyro sensor incremental quaternions into the a priori orientation quaternion fqMi
-		qAeqAxB(&fqMi, &ftmpq);
-	}
 
+    // calculate the instantaneous angular velocity (after subtracting the gyro offset) and rotation vector ftmpMi3x1
+    for (i = CHX; i <= CHZ; i++)
+    {
+        pthisSV->fOmega[i] = (float)pthisGyro->iYsBuffer[i] * pthisGyro->fDegPerSecPerCount - pthisSV->fbPl[i];
+        ftmpMi3x1[i] = pthisSV->fOmega[i] * pthisSV->fGyrodeltat;
+    }
+    // convert the rotation vector ftmpMi3x1 to a rotation quaternion ftmpq
+    fQuaternionFromRotationVectorDeg(&ftmpq, ftmpMi3x1, 1.0F);
+    // integrate the gyro sensor incremental quaternions into the a priori orientation quaternion fqMi
+    qAeqAxB(&fqMi, &ftmpq);
+	
 	// set ftmp3DOF3x1 to the 3DOF gravity vector in the sensor frame
 	fmodSqGs = pthisAccel->fGsAvg[CHX] * pthisAccel->fGsAvg[CHX] + pthisAccel->fGsAvg[CHY] * pthisAccel->fGsAvg[CHY] +
 			pthisAccel->fGsAvg[CHZ] * pthisAccel->fGsAvg[CHZ];
@@ -880,8 +855,7 @@ void fRun_6DOF_GY_KALMAN(struct SV_6DOF_GY_KALMAN *pthisSV, struct AccelSensor *
 } // end fRun_6DOF_GY_KALMAN
 
 // 9DOF accelerometer+magnetometer+gyroscope orientation function implemented using indirect complementary Kalman filter
-void fRun_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag,
-		struct GyroSensor *pthisGyro, struct MagCalibration *pthisMagCal)
+void fRun_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSensor *pthisAccel, struct MagSensor *pthisMag, struct GyroSensor *pthisGyro, struct MagCalibration *pthisMagCal)
 {	
 	// local scalars and arrays
 	float ftmpA7x7[7][7];				// scratch 7x7 matrix
@@ -907,30 +881,36 @@ void fRun_9DOF_GBY_KALMAN(struct SV_9DOF_GBY_KALMAN *pthisSV, struct AccelSensor
 	int8 iColInd[7];
 	int8 iRowInd[7];
 	int8 iPivot[7];
+    
+    // compute and store useful product terms to save floating point calculations later
+	pthisSV->fGyrodeltat = pthisSV->fSensorDT;
+	pthisSV->fKalmandeltat = pthisSV->fSensorDT;
+	pthisSV->fgKalmandeltat = GTOMSEC2 * pthisSV->fKalmandeltat;
+	pthisSV->fAlphaOver2 = 0.5F * FPIOVER180 * pthisSV->fSensorDT;
+	pthisSV->fAlphaOver2Sq = pthisSV->fAlphaOver2 * pthisSV->fAlphaOver2;
+	pthisSV->fAlphaOver2Qwb = pthisSV->fAlphaOver2 * FQWB_9DOF_GBY_KALMAN;
+	pthisSV->fAlphaOver2SqQvYQwb = pthisSV->fAlphaOver2Sq * (FQVY_9DOF_GBY_KALMAN + FQWB_9DOF_GBY_KALMAN);
 
 	// if requested, do a reset initialization with no further processing
 	if (pthisSV->resetflag)
 	{
 		fInit_9DOF_GBY_KALMAN(pthisSV, pthisAccel, pthisMag, pthisMagCal);
-		return;
 	}
 
 	// compute the a priori orientation quaternion fqMi by integrating the buffered gyro measurements
 	fqMi = pthisSV->fqPl;
-	// loop over all the buffered gyroscope measurements
-	for (j = 0; j < pthisSV->iOversampleRatio; j++)
-	{
-		// calculate the instantaneous angular velocity (after subtracting the gyro offset) and rotation vector ftmpMi3x1
-		for (i = CHX; i <= CHZ; i++)
-		{
-			pthisSV->fOmega[i] = (float)pthisGyro->iYsBuffer[j][i] * pthisGyro->fDegPerSecPerCount - pthisSV->fbPl[i];
-			ftmpMi3x1[i] = pthisSV->fOmega[i] * pthisSV->fGyrodeltat;
-		}
-		// convert the rotation vector ftmpMi3x1 to a rotation quaternion ftmpq
-		fQuaternionFromRotationVectorDeg(&ftmpq, ftmpMi3x1, 1.0F);
-		// integrate the gyro sensor incremental quaternions into the a priori orientation quaternion fqMi
-		qAeqAxB(&fqMi, &ftmpq);
-	}
+    
+    // calculate the instantaneous angular velocity (after subtracting the gyro offset) and rotation vector ftmpMi3x1
+    for (i = CHX; i <= CHZ; i++)
+    {
+        pthisSV->fOmega[i] = (float)pthisGyro->iYsBuffer[i] * pthisGyro->fDegPerSecPerCount - pthisSV->fbPl[i];
+        ftmpMi3x1[i] = pthisSV->fOmega[i] * pthisSV->fGyrodeltat;
+    }
+    // convert the rotation vector ftmpMi3x1 to a rotation quaternion ftmpq
+    fQuaternionFromRotationVectorDeg(&ftmpq, ftmpMi3x1, 1.0F);
+    // integrate the gyro sensor incremental quaternions into the a priori orientation quaternion fqMi
+    qAeqAxB(&fqMi, &ftmpq);
+    
 	// compute the a priori orientation matrix from the a priori quaternion.
 	fRotationMatrixFromQuaternion(fRMi, &fqMi);
 

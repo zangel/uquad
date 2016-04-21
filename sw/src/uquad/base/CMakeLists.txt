@@ -30,6 +30,7 @@ set(uquad_base_headers
     Application.h
     Object.h
     ObjectFactory.h
+    Service.h
     Graph.h
 )
 

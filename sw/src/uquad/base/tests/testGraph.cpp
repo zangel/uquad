@@ -8,59 +8,83 @@ class TestNode
     : public base::Graph::Node
 {
 public:
-    class IOPort
-        : public base::Graph::Port
+    class InputPort1
+        : public base::Graph::InputPort
     {
     public:
         
-        IOPort(TestNode &tn)
-            : base::Graph::Port()
-            , m_TestNode(tn)
+        InputPort1()
+            : base::Graph::InputPort()
         {
         }
         
-        intrusive_ptr<base::Graph::Node> node() const
+        std::string const& name() const
         {
-            return intrusive_ptr<base::Graph::Node>(&m_TestNode);
+            static std::string _name = "in1";
+            return _name;
         }
         
-        bool acceptsPort(intrusive_ptr<base::Graph::Port> input) const
+        bool acceptsPort(intrusive_ptr<base::Graph::OutputPort> op) const
         {
             return true;
         }
-        
-        TestNode &m_TestNode;
     };
     
-    TestNode()
+    class InputPort2
+        : public base::Graph::InputPort
+    {
+    public:
+        
+        InputPort2()
+            : base::Graph::InputPort()
+        {
+        }
+        
+        std::string const& name() const
+        {
+            static std::string _name = "in2";
+            return _name;
+        }
+        
+        bool acceptsPort(intrusive_ptr<base::Graph::OutputPort> op) const
+        {
+            return true;
+        }
+    };
+    
+    class OutputPort1
+        : public base::Graph::OutputPort
+    {
+    public:
+        
+        OutputPort1()
+            : base::Graph::OutputPort()
+        {
+        }
+        
+        std::string const& name() const
+        {
+            static std::string _name = "out1";
+            return _name;
+        }
+    };
+    
+    TestNode(std::string const &n)
         : base::Graph::Node()
-        , m_IOPort(*this)
+        , m_InputPort1()
+        , m_InputPort2()
+        , m_OutputPort1()
+        , m_Name(n)
     {
-        intrusive_ptr_add_ref(&m_IOPort);
+        intrusive_ptr_add_ref(&m_InputPort1); addInputPort(&m_InputPort1);
+        intrusive_ptr_add_ref(&m_InputPort2); addInputPort(&m_InputPort2);
+        intrusive_ptr_add_ref(&m_OutputPort1); addOutputPort(&m_OutputPort1);
     }
     
-    std::size_t numInputPorts() const
-    {
-        return 1;
-    }
-    
-    intrusive_ptr<base::Graph::Port> inputPort(std::size_t index) const
-    {
-        return intrusive_ptr<base::Graph::Port>(&m_IOPort);
-    }
-    
-    std::size_t numOutputPorts() const
-    {
-        return 1;
-    }
-    
-    intrusive_ptr<base::Graph::Port> outputPort(std::size_t index) const
-    {
-        return intrusive_ptr<base::Graph::Port>(&m_IOPort);
-    }
-    
-    
-    mutable IOPort m_IOPort;
+    InputPort1 m_InputPort1;
+    InputPort2 m_InputPort2;
+    OutputPort1 m_OutputPort1;
+    std::string m_Name;
 };
 
 
@@ -68,19 +92,38 @@ BOOST_AUTO_TEST_CASE(Graph)
 {
     intrusive_ptr<base::Graph> graph(new base::Graph());
     
-    intrusive_ptr<base::Graph::Node> node1(new TestNode());
-    intrusive_ptr<base::Graph::Node> node2(new TestNode());
+    intrusive_ptr<base::Graph::Node> node0(new TestNode("0"));
+    intrusive_ptr<base::Graph::Node> node1(new TestNode("1"));
+    intrusive_ptr<base::Graph::Node> node2(new TestNode("2"));
+    intrusive_ptr<base::Graph::Node> node3(new TestNode("3"));
     
+    BOOST_TEST_REQUIRE(!graph->addNode(node0));
     BOOST_TEST_REQUIRE(!graph->addNode(node1));
     BOOST_TEST_REQUIRE(!graph->addNode(node2));
+    BOOST_TEST_REQUIRE(!graph->addNode(node3));
+
     
-    BOOST_TEST_REQUIRE(!graph->connectPorts(node1->outputPort(0), node1->inputPort(0)));
+    BOOST_TEST_REQUIRE(!graph->connectPorts(node0->outputPort(0), node1->inputPort(0)));
+    BOOST_TEST_REQUIRE(!graph->connectPorts(node1->outputPort(0), node2->inputPort(0)));
+    BOOST_TEST_REQUIRE(!graph->connectPorts(node3->outputPort(0), node2->inputPort(1)));
     
     unordered_set< intrusive_ptr<base::Graph::Node> > sources;
-    sources.insert(node1);
+    sources.insert(node0);
+    sources.insert(node3);
     
-    graph->visitNodes(sources, [](intrusive_ptr<base::Graph::Node> node)
-    {
-        BOOST_TEST_REQUIRE(node);
-    });
+    graph->visit(
+        sources,
+        [](intrusive_ptr<base::Graph::Node> node) -> system::error_code
+        {
+            if(intrusive_ptr<TestNode> tnode = dynamic_pointer_cast<TestNode>(node))
+            {
+                std::cout << tnode->m_Name << std::endl;
+            }
+            return base::makeErrorCode(base::kENoError);
+        },
+        [](intrusive_ptr<base::Graph::Connection> conn) -> system::error_code
+        {
+            return base::makeErrorCode(base::kENoError);
+        }
+    );
 }

@@ -1,5 +1,4 @@
 #include "PoseEstimation.h"
-#include "../SystemLibrary.h"
 #include "../../base/Error.h"
 
 namespace uquad
@@ -20,8 +19,34 @@ namespace ekf2
     
     PoseEstimation::PoseEstimation()
         : control::PoseEstimation()
-        , m_bPrepared(false)
+        , m_DT(dTName())
+        , m_Time(timeName())
+        , m_VelocityRate(velocityRateName())
+        , m_RotationRate(rotationRateName())
+        , m_MagneticField(magneticFieldName())
+        , m_RelativeAltitude(relativeAltitudeName())
+        , m_Attitude(attitudeName())
+        , m_Position(positionName())
+        , m_Velocity(velocityName())
+        , m_EarthMagneticField(earthMagneticFieldName())
+        , m_bOnGround(true)
+        , m_bArmed(true)
+        , m_EKF()
+        , m_LastRatesInitialized(false)
+        , m_LastVelocityRate()
+        , m_LastRotationRate()
     {
+        intrusive_ptr_add_ref(&m_DT); addInputPort(&m_DT);
+        intrusive_ptr_add_ref(&m_Time); addInputPort(&m_Time);
+        intrusive_ptr_add_ref(&m_VelocityRate); addInputPort(&m_VelocityRate);
+        intrusive_ptr_add_ref(&m_RotationRate); addInputPort(&m_RotationRate);
+        intrusive_ptr_add_ref(&m_MagneticField); addInputPort(&m_MagneticField);
+        intrusive_ptr_add_ref(&m_RelativeAltitude); addInputPort(&m_RelativeAltitude);
+        
+        intrusive_ptr_add_ref(&m_Attitude); addOutputPort(&m_Attitude);
+        intrusive_ptr_add_ref(&m_Position); addOutputPort(&m_Position);
+        intrusive_ptr_add_ref(&m_Velocity); addOutputPort(&m_Velocity);
+        intrusive_ptr_add_ref(&m_EarthMagneticField); addOutputPort(&m_EarthMagneticField);
     }
     
     PoseEstimation::~PoseEstimation()
@@ -33,80 +58,124 @@ namespace ekf2
         return true;
     }
         
-    system::error_code PoseEstimation::prepare()
+    system::error_code PoseEstimation::prepare(asio::yield_context yctx)
     {
-        if(m_bPrepared)
-            return base::makeErrorCode(base::kEAlreadyStarted);
+        if(system::error_code pee = control::PoseEstimation::prepare(yctx))
+            return pee;
         
-        m_IMUStartTime = base::TimePoint::min();
-        m_IMULastTime = base::TimePoint::min();
+        if( !m_DT.sourceConnection() ||
+            !m_VelocityRate.sourceConnection() ||
+            !m_RotationRate.sourceConnection() ||
+            !m_MagneticField.sourceConnection() )
+        {
+            return base::makeErrorCode(base::kEInvalidState);
+        }
         
-        m_LastVelRate.setZero();
-        m_LastAngRate.setZero();
+        m_LastRatesInitialized = false;
+        m_LastVelocityRate.setZero();
+        m_LastRotationRate.setZero();
         
-        m_bPrepared = true;
         return base::makeErrorCode(base::kENoError);
     }
     
-    bool PoseEstimation::isPrepared() const
+    void PoseEstimation::unprepare(asio::yield_context yctx)
     {
-        return m_bPrepared;
+        control::PoseEstimation::unprepare(yctx);
     }
     
-    void PoseEstimation::unprepare()
-    {
-        if(!m_bPrepared)
-            return;
-        
-        m_bPrepared = false;
-    }
+    #define EKF2_USE_VR 1
+    #define EKF2_USE_RR 1
+    #define EKF2_USE_MF 1
+    #define EKF2_USE_BA 1
     
-    system::error_code PoseEstimation::processUQuadSensorsData(hal::UQuadSensorsData const &usd)
+    system::error_code PoseEstimation::update(asio::yield_context yctx)
     {
-        if(m_IMUStartTime == base::TimePoint::min())
-        {
-            m_IMUStartTime = usd.time;
-            m_IMULastTime = usd.time;
-            m_LastVelRate = usd.velocityRate;
-            m_LastAngRate = usd.rotationRate;
-            return base::makeErrorCode(base::kENoError);
-        }
-        
-        base::TimeDuration const absT = usd.time - m_IMUStartTime;
-        base::TimeDuration const dT = usd.time - m_IMULastTime;
-        
-        uint64_t const absTus = chrono::duration_cast<chrono::microseconds>(absT).count();
-        uint64_t const dTus = chrono::duration_cast<chrono::microseconds>(dT).count();
-        float const dTs = dTus*1.0e-6;
-        
-        Vec3f dVel = 0.5f*(usd.velocityRate + m_LastVelRate)*dTs;
-        Vec3f dAng = 0.5f*(usd.rotationRate + m_LastAngRate)*dTs;
-        Vec3f magneticField = usd.magneticField;
-        float baroAltitude = usd.baroPressure;
-        
-        #if 0
-        dVel(0) = dVel(1) = 0.0f;
-        dAng.setZero();
-        magneticField(0) = magneticField(1) = 0.0f;
-        magneticField(2) = 40;
-        baroAltitude = 0.0f;
+        #if EKF2_USE_VR
+        Vec3f velocityRate = Vec3f(
+            -m_VelocityRate.m_Value(0),
+            -m_VelocityRate.m_Value(1),
+            -m_VelocityRate.m_Value(2)
+        ) * 9.80665f;
+        #else
+        Vec3f velocityRate = Vec3f(
+            0.0f,
+            0.0f,
+            -9.80665f
+        );
         #endif
         
-        m_EKF.setIMUData(absTus, dTus, dTus, dVel.data(), dAng.data());
-        m_EKF.setMagData(absTus, magneticField.data());
-        m_EKF.setBaroData(absTus, &baroAltitude);
+        #if EKF2_USE_RR
+        Vec3f rotationRate = Vec3f(
+             m_RotationRate.m_Value(0),
+             m_RotationRate.m_Value(1),
+             m_RotationRate.m_Value(2)
+        );
+        #else
+        Vec3f rotationRate = Vec3f::Zero();
+        #endif
+        
+        #if EKF2_USE_MF
+        Vec3f magneticField = Vec3f(
+             -m_MagneticField.m_Value(0),
+             -m_MagneticField.m_Value(1),
+             -m_MagneticField.m_Value(2)
+        );
+        #else
+        Vec3f magneticField = Vec3f::Zero();
+        #endif
+        
+        #if EKF2_USE_BA
+        float baroHeight = m_RelativeAltitude.m_Value;
+        #else
+        float baroHeight = 0.0f;
+        #endif
+        
+        
+        if(!m_LastRatesInitialized)
+        {
+            m_LastRatesInitialized = true;
+            m_LastVelocityRate = velocityRate;
+            m_LastRotationRate = rotationRate;
+        }
+        
+        uint64_t const absTus = std::lround(1.0e+6f*m_Time.m_Value);
+        uint64_t const dTus = std::lround(1.0e+6f*m_DT.m_Value);
+        
+        
+        Vec3f imuVelRateData = 0.5f*(velocityRate + m_LastVelocityRate)*m_DT.m_Value;
+        Vec3f imuRotRateData = 0.5f*(rotationRate + m_LastRotationRate)*m_DT.m_Value;
+        Vec3f magData = magneticField;
+        float baroData = baroHeight;
+        
+        m_EKF.set_in_air_status(!m_bOnGround);
+        m_EKF.set_arm_status(m_bArmed);
+        m_EKF.setIMUData(absTus, dTus, dTus, imuRotRateData.data(), imuVelRateData.data());
+        m_EKF.setMagData(absTus, magData.data());
+        m_EKF.setBaroData(absTus, &baroData);
+        
         
         m_EKF.update();
         
-        attitude = m_EKF.getAttitude();
-        position = m_EKF.getPosition();
-        velocity = m_EKF.getVelocity();
+        float estData[4];
+
         
-        earthMagneticField = m_EKF.getMagI();
         
-        m_IMULastTime = usd.time;
-        m_LastVelRate = usd.velocityRate;
-        m_LastAngRate = usd.rotationRate;
+        m_EKF.copy_quaternion(estData);
+        m_Attitude.m_Value = Quaternionf(estData[0], estData[1], estData[2], estData[3]);
+        
+        m_EKF.copy_position(estData);
+        m_Position.m_Value = -Vec3f(estData[0], estData[1], estData[2]);
+        
+        m_EKF.copy_velocity(estData);
+        m_Velocity.m_Value = -Vec3f(estData[0], estData[1], estData[2]);
+
+        
+        m_EKF.get_heading_innov(estData);
+        m_EarthMagneticField.m_Value = Vec3f(estData[0], estData[0], estData[0]);
+        
+        m_LastVelocityRate = velocityRate;
+        m_LastRotationRate = rotationRate;
+        
         
         return base::makeErrorCode(base::kENoError);
     }
@@ -114,5 +183,3 @@ namespace ekf2
 } //namespace ekf2
 } //namespace control
 } //namespace uquad
-
-UQUAD_BASE_REGISTER_OBJECT(uquad::control::ekf2::PoseEstimation, uquad::control::SystemLibrary)
