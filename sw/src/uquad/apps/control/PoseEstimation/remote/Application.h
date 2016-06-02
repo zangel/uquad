@@ -32,6 +32,7 @@ namespace remote
         static uint32_t const NUM_SAMPLES = 10;
         
     protected:
+        void onRemoteControlConnected();
         void onRemoteControlMessageReceived(intrusive_ptr<comm::Message> msg);
         void handleUQuadMotorsPowerReceived(intrusive_ptr<common::msg::UQuadMotorsPower> mp);
         void onUQuadSensorsReady();

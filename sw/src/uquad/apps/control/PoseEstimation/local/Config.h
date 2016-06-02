@@ -14,11 +14,12 @@
 #include <uquad/control/GyroscopeCalibration.h>
 #include <uquad/control/MagnetometerCalibration.h>
 #include <uquad/control/System.h>
-#include <uquad/control/UQuadSensors.h>
-#include <uquad/control/PoseEstimation.h>
-#include <uquad/control/AttitudeControlSimple.h>
-#include <uquad/control/PositionControlSimple.h>
-#include <uquad/control/QuadMotorsThrustSimple.h>
+#include <uquad/control/blocks/UQuadSensors.h>
+#include <uquad/control/blocks/PoseEstimation.h>
+#include <uquad/control/blocks/AttitudeControlSimple.h>
+#include <uquad/control/blocks/PositionControlSimple.h>
+#include <uquad/control/blocks/QuadMotorsThrustSimple.h>
+#include <uquad/control/blocks/ManualControlSimple.h>
 
 #include <QObject>
 #include <QApplication>

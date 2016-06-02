@@ -244,7 +244,8 @@ namespace base
         {
             if(intrusive_ptr<InputPort> ip = dst->inputPort(op->name()))
             {
-                anyConnected = !connectPorts(op, ip) || anyConnected;
+                if(!connectPorts(op, ip))
+                    anyConnected = true;
             }
         });
         

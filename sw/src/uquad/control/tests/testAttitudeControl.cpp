@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <uquad/control/System.h>
-#include <uquad/control/AttitudeControlSimple.h>
+#include <uquad/control/blocks/AttitudeControlSimple.h>
 
 using namespace uquad;
 namespace tt = boost::test_tools;
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(AttitudeControl)
     intrusive_ptr<base::Runloop> runloop(new base::Runloop());
     intrusive_ptr<control::System> system(new control::System(runloop));
     
-    intrusive_ptr<control::AttitudeControlSimple> attitudeControlSimple(new control::AttitudeControlSimple());
+    intrusive_ptr<control::blocks::AttitudeControlSimple> attitudeControlSimple(new control::blocks::AttitudeControlSimple());
     BOOST_TEST_REQUIRE(!system->addBlock(attitudeControlSimple));
     
     bool done;

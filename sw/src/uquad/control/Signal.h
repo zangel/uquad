@@ -124,7 +124,7 @@ namespace control
         void value(T v) { m_Value = v; }
         
     public:
-        std::string const &m_Name;
+        std::string m_Name;
         T m_Value;
     };
     
@@ -152,11 +152,10 @@ namespace control
         T value() const { return m_Value; }
         
     public:
-        std::string const &m_Name;
+        std::string m_Name;
         T m_Value;
     };
 
-    
 } //namespace control
 } //namespace uquad
 

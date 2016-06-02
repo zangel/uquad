@@ -19,15 +19,16 @@ namespace local
         , Ui::PoseEstimationView()
         , m_ControlSystem(Application::instance()->getRunloop())
         , m_UQuadSensors()
-        , m_BarometerRelativeAttitude()
+        , m_BarometerAltitude()
         , m_PoseEstimation(SI(control::BlockLibrary).createPoseEstimation("ekf2"))
         , m_PoseEstimationAttitude()
         , m_PoseEstimationPosition()
         , m_PoseEstimationEarthMagneticField()
+        , m_ManualControlSimple()
         , m_AttitudeControlSimple()
         , m_PositionControlSimple()
         , m_QuadMotorsThrustSimple()
-        , m_QuadMotorsThrustMotors()
+        , m_QuadMotorsThrustMotorsPower()
         , m_UQuadSensorsDataGuard()
         , m_UQuadSensorsData()
         , m_CurrentUQuadSensorsData()
@@ -39,18 +40,48 @@ namespace local
         intrusive_ptr_add_ref(&m_ControlSystem);
         intrusive_ptr_add_ref(&m_UQuadSensors);
         
-        m_BarometerRelativeAttitude = m_UQuadSensors.typedOutputSignal<control::Barometer::Altitude>(control::Barometer::relativeAltitudeName());
+        m_BarometerAltitude = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::Barometer::Altitude >
+        >(m_UQuadSensors.outputSignalAltitude());
         
-        m_PoseEstimationAttitude = m_PoseEstimation->typedOutputSignal<control::PoseEstimation::Attitude>(control::PoseEstimation::attitudeName());
-        m_PoseEstimationPosition = m_PoseEstimation->typedOutputSignal<control::PoseEstimation::Position>(control::PoseEstimation::positionName());
-        m_PoseEstimationVelocity = m_PoseEstimation->typedOutputSignal<control::PoseEstimation::Velocity>(control::PoseEstimation::velocityName());
-        m_PoseEstimationEarthMagneticField = m_PoseEstimation->typedOutputSignal<control::PoseEstimation::MagneticField>(control::PoseEstimation::earthMagneticFieldName());
+        m_PoseEstimationAttitude = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::PoseEstimation::Attitude >
+        >(m_PoseEstimation->outputSignalAttitude());
+        
+        m_PoseEstimationPosition = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::PoseEstimation::Position >
+        >(m_PoseEstimation->outputSignalPosition());
+        
+        m_PoseEstimationVelocity = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::PoseEstimation::Velocity >
+        >(m_PoseEstimation->outputSignalVelocity());
+        
+        m_PoseEstimationEarthMagneticField = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::PoseEstimation::MagneticField >
+        >(m_PoseEstimation->outputSignalEarthMagneticField());
+        
+        intrusive_ptr_add_ref(&m_ManualControlSimple);
         
         intrusive_ptr_add_ref(&m_AttitudeControlSimple);
+        
         intrusive_ptr_add_ref(&m_PositionControlSimple);
+        
+        m_PositionControlSimpleAttitudeSetpoint = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::PositionControlSimple::Attitude >
+        >(m_PositionControlSimple.outputSignalAttitudeSetpoint());
+        
         intrusive_ptr_add_ref(&m_QuadMotorsThrustSimple);
         
-        m_QuadMotorsThrustMotors = m_QuadMotorsThrustSimple.typedOutputSignal<control::QuadMotorsThrust::Motors>(control::QuadMotorsThrust::motorsName());
+        m_QuadMotorsThrustMotorsPower = dynamic_pointer_cast
+        <
+            control::TypedOutputSignal< control::blocks::QuadMotorsThrust::MotorsPower >
+        >(m_QuadMotorsThrustSimple.outputSignalMotorsPower());
         
         setupControlSystem();
         
@@ -134,15 +165,14 @@ namespace local
         m_EarthMagneticFieldEst->graph(1)->clearData();
         m_EarthMagneticFieldEst->graph(2)->clearData();
         
+        m_UQuadSensorsData.clear();
+        m_CurrentUQuadSensorsData.reset();
         m_SensorsFirstTS = base::TimePoint::min();
-        
     }
     
     void PoseEstimationView::onRemoteControlStopped()
     {
         m_CurrentUQuadSensorsDataPlayoutTimer.cancel();
-        m_CurrentUQuadSensorsData.reset();
-        m_UQuadSensorsData.clear();
         m_ControlSystem.stop();
     }
     
@@ -255,22 +285,48 @@ namespace local
     {
         m_ControlSystem.addBlock(&m_UQuadSensors);              //0
         m_ControlSystem.addBlock(m_PoseEstimation);             //1
-        m_ControlSystem.addBlock(&m_AttitudeControlSimple);     //2
-        m_ControlSystem.addBlock(&m_PositionControlSimple);     //3
-        m_ControlSystem.addBlock(&m_QuadMotorsThrustSimple);    //4
-        
-        m_ControlSystem.connectBlocks(&m_UQuadSensors, m_PoseEstimation);
-        
-        m_ControlSystem.connectBlocks(&m_UQuadSensors, &m_PositionControlSimple);
-        m_ControlSystem.connectBlocks(m_PoseEstimation, &m_PositionControlSimple);
-        
-        m_ControlSystem.connectBlocks(&m_UQuadSensors, &m_AttitudeControlSimple);
-        m_ControlSystem.connectBlocks(m_PoseEstimation, &m_AttitudeControlSimple);
-        //m_ControlSystem.connectBlocks(&m_PositionControlSimple, &m_AttitudeControlSimple);
+        m_ControlSystem.addBlock(&m_ManualControlSimple);       //2
+        m_ControlSystem.addBlock(&m_AttitudeControlSimple);     //3
+        m_ControlSystem.addBlock(&m_PositionControlSimple);     //4
+        m_ControlSystem.addBlock(&m_QuadMotorsThrustSimple);    //5
         
         
-        m_ControlSystem.connectBlocks(&m_PositionControlSimple, &m_QuadMotorsThrustSimple);
-        m_ControlSystem.connectBlocks(&m_AttitudeControlSimple, &m_QuadMotorsThrustSimple);
+        // UQuadSensors -> PoseEstimation
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalTime(), m_PoseEstimation->inputSignalTime());
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalDT(), m_PoseEstimation->inputSignalDT());
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalVelocityRate(), m_PoseEstimation->inputSignalVelocityRate());
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalRotationRate(), m_PoseEstimation->inputSignalRotationRate());
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalMagneticField(), m_PoseEstimation->inputSignalMagneticField());
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalAltitude(), m_PoseEstimation->inputSignalAltitude());
+        
+        // ManualControlSimple -> PositionControlSimple
+        m_ControlSystem.connectPorts(m_ManualControlSimple.outputSignalDirection(), m_PositionControlSimple.inputSignalDirectionControl());
+        m_ControlSystem.connectPorts(m_ManualControlSimple.outputSignalThrust(), m_PositionControlSimple.inputSignalThrustControl());
+        
+        
+        // UQuadSensors -> PositionControlSimple
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalDT(), m_PositionControlSimple.inputSignalDT());
+        
+        // PoseEstimation -> PositionControlSimple
+        m_ControlSystem.connectPorts(m_PoseEstimation->outputSignalAttitude(), m_PositionControlSimple.inputSignalAttitudeEstimated());
+        m_ControlSystem.connectPorts(m_PoseEstimation->outputSignalPosition(), m_PositionControlSimple.inputSignalPositionEstimated());
+        m_ControlSystem.connectPorts(m_PoseEstimation->outputSignalVelocity(), m_PositionControlSimple.inputSignalVelocityEstimated());
+        
+        // UQuadSensors -> AttitudeControlSimple
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalDT(), m_AttitudeControlSimple.inputSignalDT());
+        m_ControlSystem.connectPorts(m_UQuadSensors.outputSignalRotationRate(), m_AttitudeControlSimple.inputSignalRotationRateMeasured());
+        
+        // PoseEstimation -> AttitudeControlSimple
+        m_ControlSystem.connectPorts(m_PoseEstimation->outputSignalAttitude(), m_AttitudeControlSimple.inputSignalAttitudeEstimated());
+        
+        // PositionControlSimple -> AttitudeControlSimple
+        m_ControlSystem.connectPorts(m_PositionControlSimple.outputSignalAttitudeSetpoint(), m_AttitudeControlSimple.inputSignalAttitudeSetpoint());
+        
+        // PositionControlSimple -> QuadMotorsThrustSimple
+        m_ControlSystem.connectPorts(m_PositionControlSimple.outputSignalThrustSetpoint(), m_QuadMotorsThrustSimple.inputSignalThrustSetpoint());
+        
+        // AttitudeControlSimple -> QuadMotorsThrustSimple
+        m_ControlSystem.connectPorts(m_AttitudeControlSimple.outputSignalRotationRateSetpoint(), m_QuadMotorsThrustSimple.inputSignalRotationRateSetpoint());
     }
     
     
@@ -393,7 +449,13 @@ namespace local
         base::TimeDuration samplesDuration = chrono::seconds(0);
         for(uint32_t s = 1; s < m_CurrentUQuadSensorsData->uquadSensorsData.size(); ++s)
         {
-            samplesDuration += m_CurrentUQuadSensorsData->uquadSensorsData[s].time - m_CurrentUQuadSensorsData->uquadSensorsData[s - 1].time;
+            base::TimeDuration const tusec = m_CurrentUQuadSensorsData->uquadSensorsData[s].time - m_CurrentUQuadSensorsData->uquadSensorsData[s - 1].time;
+            samplesDuration += tusec;
+            int const usecs = chrono::duration_cast<chrono::microseconds>(tusec).count();
+            if(usecs > 100000)
+            {
+                int c = 0;
+            }
         }
         
         m_CurrentUQuadSensorsDataSampleDuration = samplesDuration / (m_CurrentUQuadSensorsData->uquadSensorsData.size() - 1);
@@ -402,6 +464,8 @@ namespace local
         m_CurrentUQuadSensorsDataPlayoutTimer.async_wait(
             bind(&PoseEstimationView::handleCurrentUQuadSensorsDataPlayoutTimer, this, asio::placeholders::error)
         );
+        
+        std::cout << "startCurrentUQuadSensorsDataPlayoutTimer: " << chrono::duration_cast<chrono::microseconds>(m_CurrentUQuadSensorsDataSampleDuration).count() << std::endl;
     }
     
     void PoseEstimationView::handleCurrentUQuadSensorsDataPlayoutTimer(system::error_code ec)
@@ -493,6 +557,15 @@ namespace local
         m_UQuadSensors.setSensorsData(d);
         m_UQuadSensors.requestUpdate();
         
+        Vec3f dir = Vec3f::Zero();
+        dir(0) = m_ManualControlX->value()/50.0f - 1.0f;
+        dir(1) = m_ManualControlY->value()/50.0f - 1.0f;
+        dir(2) = m_ManualControlZ->value()/50.0f - 1.0f;
+        m_ManualControlSimple.setDirection(dir);
+        
+        m_ManualControlSimple.setThrust(m_ManualControlThrust->value()/100.0f);
+        m_ManualControlSimple.requestUpdate();
+        
         m_ControlSystem.update([this, graphTime](system::error_code e)
         {
             /*
@@ -521,11 +594,16 @@ namespace local
 
 
             
-            control::PoseEstimation::Attitude attitude = m_PoseEstimationAttitude->value();
+            control::blocks::PoseEstimation::Attitude attitude = m_PoseEstimationAttitude->value();
             m_PoseView->setUQuadAttitude(QQuaternion(attitude.w(), attitude.x(), attitude.y(), attitude.z()));
             
-            control::QuadMotorsThrust::Motors motorsThrust = m_QuadMotorsThrustMotors->value();
-            m_PoseView->setMotorsThrust(QVector4D(motorsThrust(0), motorsThrust(1), motorsThrust(2), motorsThrust(3)));
+            control::blocks::PoseEstimation::Attitude attitudeSetpoint = m_PositionControlSimpleAttitudeSetpoint->value();
+            m_PoseView->setUQuadAttitudeSetpoint(QQuaternion(attitudeSetpoint.w(), attitudeSetpoint.x(), attitudeSetpoint.y(), attitudeSetpoint.z()));
+            
+            
+            
+            control::blocks::QuadMotorsThrust::MotorsPower motorsPower = m_QuadMotorsThrustMotorsPower->value();
+            m_PoseView->setMotorsPower(QVector4D(motorsPower(0), motorsPower(1), motorsPower(2), motorsPower(3)));
             
             {
                 lock_guard<fast_mutex> graphsGuard(m_GraphsGuard);
@@ -584,9 +662,9 @@ namespace local
                     m_EarthMagneticFieldEst->yAxis->rescale();
                 }
                 
-                if(m_BarometerRelativeAttitude)
+                if(m_BarometerAltitude)
                 {
-                    m_Barometrics->graph(0)->addData(graphTime, m_BarometerRelativeAttitude->value());
+                    m_Barometrics->graph(0)->addData(graphTime, m_BarometerAltitude->value());
                     m_Barometrics->graph(0)->removeDataBefore(graphTime - 3.0);
                     m_Barometrics->xAxis->setRange(graphTime, 3.0, Qt::AlignRight);
                     m_Barometrics->yAxis->rescale();

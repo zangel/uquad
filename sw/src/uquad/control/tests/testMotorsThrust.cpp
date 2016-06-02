@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <uquad/control/System.h>
-#include <uquad/control/QuadMotorsThrustSimple.h>
+#include <uquad/control/blocks/QuadMotorsThrustSimple.h>
 
 using namespace uquad;
 namespace tt = boost::test_tools;
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(MotorsThrust)
     intrusive_ptr<base::Runloop> runloop(new base::Runloop());
     intrusive_ptr<control::System> system(new control::System(runloop));
     
-    intrusive_ptr<control::QuadMotorsThrustSimple> motorsThurst(new control::QuadMotorsThrustSimple());
+    intrusive_ptr<control::blocks::QuadMotorsThrustSimple> motorsThurst(new control::blocks::QuadMotorsThrustSimple());
     BOOST_TEST_REQUIRE(!system->addBlock(motorsThurst));
     
     bool done;

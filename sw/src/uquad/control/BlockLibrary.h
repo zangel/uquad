@@ -8,7 +8,11 @@ namespace uquad
 {
 namespace control
 {
-    class PoseEstimation;
+    namespace blocks
+    {
+        class PoseEstimation;
+    } //namespace blocks
+    
     
     class BlockLibrary
         : public base::ObjectFactory
@@ -21,7 +25,7 @@ namespace control
     public:
         ~BlockLibrary();
 
-        intrusive_ptr<PoseEstimation> createPoseEstimation(std::string const &name) const;
+        intrusive_ptr<blocks::PoseEstimation> createPoseEstimation(std::string const &name) const;
 	};
 
 } //namespace control

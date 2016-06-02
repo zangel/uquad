@@ -1,5 +1,5 @@
 #include "BlockLibrary.h"
-#include "PoseEstimation.h"
+#include "blocks/PoseEstimation.h"
 #include "../base/Error.h"
 
 namespace uquad
@@ -17,10 +17,10 @@ namespace control
 
 	}
     
-    intrusive_ptr<PoseEstimation> BlockLibrary::createPoseEstimation(std::string const &name) const
+    intrusive_ptr<blocks::PoseEstimation> BlockLibrary::createPoseEstimation(std::string const &name) const
     {
-        intrusive_ptr<PoseEstimation::Registry> match;
-        enumerateRegistries<PoseEstimation>([&match, &name](intrusive_ptr<PoseEstimation::Registry> const &registry) -> bool
+        intrusive_ptr<blocks::PoseEstimation::Registry> match;
+        enumerateRegistries<blocks::PoseEstimation>([&match, &name](intrusive_ptr<blocks::PoseEstimation::Registry> const &registry) -> bool
         {
             if(registry->name == name)
             {
@@ -31,9 +31,9 @@ namespace control
         });
         
         if(match)
-            return match->createObject<PoseEstimation>();
+            return match->createObject<blocks::PoseEstimation>();
         
-        return intrusive_ptr<PoseEstimation>();
+        return intrusive_ptr<blocks::PoseEstimation>();
     }
     
 } //namespace control

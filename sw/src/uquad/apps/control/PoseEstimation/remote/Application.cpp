@@ -44,7 +44,7 @@ namespace remote
             m_UQuad->armMotors();
         }
 
-        m_CurrSensorData.reset(new common::msg::UQuadSensorsData());
+        //m_CurrSensorData.reset(new common::msg::UQuadSensorsData());
         m_UQuad->uquadDelegate() += this;
         m_RemoteControlServer.start();
         return base::makeErrorCode(base::kENoError);
@@ -57,6 +57,11 @@ namespace remote
         m_UQuad.reset();
         
         m_RemoteControlServer.stop();
+    }
+    
+    void Application::onRemoteControlConnected()
+    {
+        m_CurrSensorData.reset(new common::msg::UQuadSensorsData());
     }
     
     void Application::onRemoteControlMessageReceived(intrusive_ptr<comm::Message> msg)

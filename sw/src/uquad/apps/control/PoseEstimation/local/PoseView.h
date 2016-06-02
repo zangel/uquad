@@ -20,16 +20,20 @@ namespace local
         ~PoseView();
         
         void setUQuadAttitude(QQuaternion quat);
+        void setUQuadAttitudeSetpoint(QQuaternion quat);
         void setMagneticField(QVector3D vec);
-        void setMotorsThrust(QVector4D mt);
+        void setMotorsPower(QVector4D mp);
         
     protected:
         void drawView();
+        void drawUQuad();
+        void drawUQuadSetpoint();
         
     private:
         QQuaternion m_UQuadAttitude;
+        QQuaternion m_UQuadAttitudeSetpoint;
         QVector3D m_MagneticField;
-        QVector4D m_MotorsThrust;
+        QVector4D m_MotorsPower;
         
     };
     

@@ -27,7 +27,7 @@ namespace local
     
     bool CalibrationView::isAccelerometerCalibrated() const
     {
-        return m_AccelerometerCalibration.samplesQuality() >= 0.5f;
+        return m_AccelerometerCalibration.samplesQuality() >= 1.0f;
     }
     
     bool CalibrationView::isGyroscopeCalibrated() const

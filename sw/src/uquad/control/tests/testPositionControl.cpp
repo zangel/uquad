@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <uquad/control/System.h>
-#include <uquad/control/PositionControlSimple.h>
+#include <uquad/control/blocks/PositionControlSimple.h>
 
 using namespace uquad;
 namespace tt = boost::test_tools;
@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(PositionControl)
     intrusive_ptr<base::Runloop> runloop(new base::Runloop());
     intrusive_ptr<control::System> system(new control::System(runloop));
     
-    intrusive_ptr<control::PositionControlSimple> positionControlSimple(new control::PositionControlSimple());
+    intrusive_ptr<control::blocks::PositionControlSimple> positionControlSimple(new control::blocks::PositionControlSimple());
     BOOST_TEST_REQUIRE(!system->addBlock(positionControlSimple));
     
     bool done;

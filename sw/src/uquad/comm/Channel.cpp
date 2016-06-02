@@ -160,34 +160,35 @@ namespace comm
             handler = m_SendBufferQueue.front().first;
             msg = m_SendBufferQueue.front().second;
             
-            if(!m_Socket)
+            if(isOpen())
+            {
+                base::OArchive archive(m_SocketStreamBuf);
+                
+                try
+                {
+                    archive & msg;
+                    m_SocketStreamBuf.pubsync();
+                    handler(std::move(msg), base::makeErrorCode(base::kENoError));
+                }
+                catch(system::system_error e)
+                {
+                    handler(std::move(msg), e.code());
+                    UQUAD_COMM_LOG(Error) << "Channel::doSendMessage: exception occurred: " << e.code() << ", " << e.what();
+                }
+                catch(...)
+                {
+                    handler(std::move(msg), base::makeErrorCode(base::kEInvalidContent));
+                }
+            }
+            else
             {
                 handler(std::move(msg), base::makeErrorCode(base::kENotOpened));
-                continue;
-            }
-            
-            
-            base::OArchive archive(m_SocketStreamBuf);
-            
-            try
-            {
-                archive & msg;
-                m_SocketStreamBuf.pubsync();
-                handler(std::move(msg), base::makeErrorCode(base::kENoError));
-            }
-            catch(system::system_error e)
-            {
-                handler(std::move(msg), e.code());
-                UQUAD_COMM_LOG(Error) << "Channel::doSendMessage: exception occurred: " << e.code() << ", " << e.what();
-            }
-            catch(...)
-            {
-                handler(std::move(msg), base::makeErrorCode(base::kEInvalidContent));
             }
             
             lock_guard<fast_mutex> lock(m_SendBufferQueueSync);
             m_SendBufferQueue.pop_front();
         }
+        
         m_SendYield = 0;
     }
     

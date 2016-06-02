@@ -60,17 +60,19 @@ namespace local
         
     private:
         control::System m_ControlSystem;
-        control::UQuadSensors m_UQuadSensors;
-        intrusive_ptr< control::TypedOutputSignal< control::Barometer::Altitude > > m_BarometerRelativeAttitude;
-        intrusive_ptr< control::PoseEstimation > m_PoseEstimation;
-        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::Attitude > > m_PoseEstimationAttitude;
-        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::Position > > m_PoseEstimationPosition;
-        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::Velocity > > m_PoseEstimationVelocity;
-        intrusive_ptr< control::TypedOutputSignal< control::PoseEstimation::MagneticField > > m_PoseEstimationEarthMagneticField;
-        control::AttitudeControlSimple m_AttitudeControlSimple;
-        control::PositionControlSimple m_PositionControlSimple;
-        control::QuadMotorsThrustSimple m_QuadMotorsThrustSimple;
-        intrusive_ptr< control::TypedOutputSignal< control::QuadMotorsThrust::Motors > > m_QuadMotorsThrustMotors;
+        uquad::control::blocks::UQuadSensors m_UQuadSensors;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::Barometer::Altitude > > m_BarometerAltitude;
+        intrusive_ptr< control::blocks::PoseEstimation > m_PoseEstimation;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::PoseEstimation::Attitude > > m_PoseEstimationAttitude;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::PoseEstimation::Position > > m_PoseEstimationPosition;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::PoseEstimation::Velocity > > m_PoseEstimationVelocity;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::PoseEstimation::MagneticField > > m_PoseEstimationEarthMagneticField;
+        control::blocks::ManualControlSimple m_ManualControlSimple;
+        control::blocks::AttitudeControlSimple m_AttitudeControlSimple;
+        control::blocks::PositionControlSimple m_PositionControlSimple;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::PositionControlSimple::Attitude > > m_PositionControlSimpleAttitudeSetpoint;
+        control::blocks::QuadMotorsThrustSimple m_QuadMotorsThrustSimple;
+        intrusive_ptr< control::TypedOutputSignal< control::blocks::QuadMotorsThrust::MotorsPower > > m_QuadMotorsThrustMotorsPower;
         
         fast_mutex m_UQuadSensorsDataGuard;
         std::list< intrusive_ptr<common::msg::UQuadSensorsData> > m_UQuadSensorsData;

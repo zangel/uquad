@@ -5,8 +5,8 @@
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
 
-#include "../ikf/types.h"
-#include "../ikf/magnetic.h"
+#include "../blocks/pe/ikf/types.h"
+#include "../blocks/pe/ikf/magnetic.h"
 
 #define UQUAD_MAG_COUNTSPERUT           6
 #define UQUAD_ACC_COUNTSPERG            8192
@@ -26,10 +26,10 @@ BOOST_AUTO_TEST_CASE(MagnetometerCalibration)
 {
     control::MagnetometerCalibration scal;
     
-    control::ikf::MagSensor magSensor;
-    control::ikf::MagneticBuffer magBuffer;
-    control::ikf::MagCalibration magCalibration;
-    control::ikf::SV_Base magBase;
+    control::blocks::pe::ikf::MagSensor magSensor;
+    control::blocks::pe::ikf::MagneticBuffer magBuffer;
+    control::blocks::pe::ikf::MagCalibration magCalibration;
+    control::blocks::pe::ikf::SV_Base magBase;
     
     
     
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(MagnetometerCalibration)
     for(int i = CHX; i <= CHZ; i++)
         magSensor.iBcAvg[i]= 0;
         
-    control::ikf::fInitMagCalibration(&magCalibration, &magBuffer);
+    control::blocks::pe::ikf::fInitMagCalibration(&magCalibration, &magBuffer);
     magBase.fSensorDT = 20.0e-3f;
     
     
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(MagnetometerCalibration)
             magSensor.iBsBuffer[i] = magSensor.iBs[i];
         }
         
-        iUpdateMagnetometerBuffer(&magBuffer, &magSensor, p);
+        control::blocks::pe::ikf::iUpdateMagnetometerBuffer(&magBuffer, &magSensor, p);
         
         for(int i = CHX; i <= CHZ; i++)
         {
@@ -85,16 +85,12 @@ BOOST_AUTO_TEST_CASE(MagnetometerCalibration)
             magSensor.fBsAvg[i] = (float)magSensor.iBsAvg[i] * magSensor.fuTPerCount;
         }
         
-        fInvertMagCal(&magSensor, &magCalibration);
+        control::blocks::pe::ikf::fInvertMagCal(&magSensor, &magCalibration);
         
         if(magBuffer.iMagBufferCount >= MINMEASUREMENTS4CAL)
         {
             magCalibration.iMagCalHasRun = true;
-            fRunMagCalibration(&magBase, &magCalibration, &magBuffer, &magSensor);
+            control::blocks::pe::ikf::fRunMagCalibration(&magBase, &magCalibration, &magBuffer, &magSensor);
         }
-        
-        
-        
-        
     }
 }

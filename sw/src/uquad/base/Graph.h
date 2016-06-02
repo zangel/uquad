@@ -57,6 +57,7 @@ namespace base
             virtual bool acceptsPort(intrusive_ptr<OutputPort> op) const = 0;
             
             inline intrusive_ptr<Connection> sourceConnection() const { return m_SourceConnection; }
+            inline bool isConnected() const { return m_SourceConnection.get(); }
             
         protected:
             intrusive_ptr<Connection> m_SourceConnection;
@@ -73,6 +74,7 @@ namespace base
             ~OutputPort();
             
             inline unordered_set< intrusive_ptr<Connection> > const& destinationConnections() const { return m_DestinationConnections; }
+            inline bool isConnected() const { return !m_DestinationConnections.empty(); }
             
         protected:
             unordered_set< intrusive_ptr<Connection> > m_DestinationConnections;
